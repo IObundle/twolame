@@ -1,84 +1,81 @@
-/*
- *  TwoLAME: an optimized MPEG Audio Layer Two encoder
- *
- *  Copyright (C) 2001-2004 Michael Cheng
- *  Copyright (C) 2004-2018 The TwoLAME Project
- *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+//#include "system.h"
+//#include "periphs.h"
+//#include "iob-uart.h"
+#include "printf.h"
+
 #include <twolame.h>
-
 #include "audio_wave.h"
-
 
 #define MP2BUFSIZE      (16384)
 #define AUDIOBUFSIZE    (9216)
 
+// set pointer to DDR base
+/*#if (RUN_EXTMEM==0)  //running firmware from SRAM
+  #define DATA_BASE_ADDR (EXTRA_BASE)
+#else //running firmware from DDR
+  #define DATA_BASE_ADDR ((1<<(FIRM_ADDR_W)))
+#endif*/
 
-
-static void usage(void)
+int main()
 {
-    printf("stwolame <input wavefile> <output mp2 file>\n");
-    exit(1);
-}
 
+    //init uart
+    //uart_init(UART_BASE,FREQ/BAUD);
 
-int main(int argc, char **argv)
-{
+    char *recvfile = NULL;
+    char *outfile = NULL;
+    char *prev_outfile = NULL;
+    int recv_file_size = 0;
+    //int send_file_size = 0;
+    //char filepath[] = "../../../sine.wav"; // valid path for sim-run
+
+    //printf("\n LETS GOOOO\n");
+
+    //uart_puts ("Waiting to receive wave file...\n");
+
+    //file receive
+    
+    //recvfile = (char*) DATA_BASE_ADDR;
+    //recv_file_size = uart_recvfile(filepath, recvfile);
+    FILE *file = NULL;
+    if ((file = fopen("sine.wav", "rb")) == NULL) {
+        printf("\nWAV: cannot open input file\n");
+        return 1;
+    }
+    //printf("\n STEP 10\n");
+    if ((recvfile = (char *) calloc(220, sizeof(char))) == NULL) {
+        fprintf(stderr, "mp2buffer alloc failed\n");
+        exit(99);
+    }
+    recv_file_size = fread(recvfile, sizeof(char), 220, file);
+    //printf("\n STEP 1111\n");
+    fclose(file);
+    //printf("\n STEP 11\n");
+    
+   
+    //twolame encoding
+    
     twolame_options *encodeOptions;
-    char *inputfilename = argv[1];
-    char *outputfilename = argv[2];
-    FILE *outfile;
-    short int *pcmaudio;
-    unsigned char *mp2buffer;
+    //char *inputfilename = argv[1];
+    //char *outputfilename = argv[2];
+    //FILE *outfile;
+    //short int *pcmaudio;
+    //unsigned char *mp2buffer;
     int num_samples = 0;
     int mp2fill_size = 0;
     int frames = 0;
     wave_info_t *wave_info = NULL;
-
-    if (argc != 3)
-        usage();
-
-
-    /* Allocate some space for the PCM audio data */
-    if ((pcmaudio = (short *) calloc(AUDIOBUFSIZE, sizeof(short))) == NULL) {
-        fprintf(stderr, "pcmaudio alloc failed\n");
-        exit(99);
-    }
-
-    /* Allocate some space for the encoded MP2 audio data */
-    if ((mp2buffer = (unsigned char *) calloc(MP2BUFSIZE, sizeof(unsigned char))) == NULL) {
-        fprintf(stderr, "mp2buffer alloc failed\n");
-        exit(99);
-    }
-
-
 
 
     /* grab a set of default encode options */
     encodeOptions = twolame_init();
     printf("Using libtwolame version %s.\n", get_twolame_version());
 
-
-    /* Open the wave file */
-    if ((wave_info = wave_init(inputfilename)) == NULL) {
+    /* Read the wave file */
+    if ((wave_info = wave_init(recvfile)) == NULL) {
         fprintf(stderr, "Not a recognised WAV file.\n");
         exit(99);
     }
@@ -106,41 +103,82 @@ int main(int argc, char **argv)
     }
 
     /* Open the output file for the encoded MP2 data */
-    if ((outfile = fopen(outputfilename, "wb")) == 0) {
-        fprintf(stderr, "error opening output file %s\n", outputfilename);
+    //outfile = (char*) (DATA_BASE_ADDR + recv_file_size);
+    
+    if ((outfile = (char *) calloc(630, sizeof(char))) == NULL) {
+        fprintf(stderr, "mp2buffer alloc failed\n");
         exit(99);
     }
+    prev_outfile = outfile;
+
+    int unread_data = recv_file_size;
+    short int *soundfile = wave_info->soundfile;
+
+    FILE * only_test = NULL;
+
+    //printf("\n STEP 0\n");
+
+     /* Open the output file for the encoded MP2 data */
+    if ((only_test = fopen("test.mp2", "wb")) == 0) {
+        fprintf(stderr, "error opening output file\n");
+        exit(99);
+    }
+
+    //printf("\n STEP 1\n");
+
     // Read num_samples of audio data *per channel* from the input file
-    while ((num_samples = wave_get_samples(wave_info, pcmaudio, AUDIOBUFSIZE)) != 0) {
+    while ((num_samples = wave_get_samples(wave_info, soundfile,  &unread_data, AUDIOBUFSIZE)) != 0) {
+
+        //printf("\n STEP 2\n");
 
         // Encode the audio!
         mp2fill_size =
-            twolame_encode_buffer_interleaved(encodeOptions, pcmaudio, num_samples, mp2buffer,
+            twolame_encode_buffer_interleaved(encodeOptions, soundfile, num_samples, (unsigned char *) outfile,
                                               MP2BUFSIZE);
 
+        //printf("\n STEP 3\n");
+
         // Write the MPEG bitstream to the file
-        fwrite(mp2buffer, sizeof(unsigned char), mp2fill_size, outfile);
+        fwrite(outfile, sizeof(unsigned char), mp2fill_size, only_test);
+
+        //printf("\n STEP 4\n");
+
+        soundfile = (short int *) (soundfile + num_samples);
+        prev_outfile = outfile;
+        outfile = (char *) (outfile + mp2fill_size);
+
+        //printf("\n STEP 5\n");
+
+        // Write the MPEG bitstream to the file
+        //fwrite(mp2buffer, sizeof(unsigned char), mp2fill_size, outfile);
 
         // Display the number of MPEG audio frames we have encoded
         frames += (num_samples / TWOLAME_SAMPLES_PER_FRAME);
         printf("[%04i]\r", frames);
         fflush(stdout);
+
+        //printf("\n STEP 6\n");
     }
+
+    //printf("\n STEP 7\n");
 
     /* flush any remaining audio. (don't send any new audio data) There should only ever be a max
        of 1 frame on a flush. There may be zero frames if the audio data was an exact multiple of
        1152 */
-    mp2fill_size = twolame_encode_flush(encodeOptions, mp2buffer, MP2BUFSIZE);
-    fwrite(mp2buffer, sizeof(unsigned char), mp2fill_size, outfile);
+    mp2fill_size = twolame_encode_flush(encodeOptions, (unsigned char *) prev_outfile, MP2BUFSIZE);
+    //fwrite(mp2buffer, sizeof(unsigned char), mp2fill_size, outfile);
+    fwrite(outfile, sizeof(unsigned char), mp2fill_size, only_test);
 
+    //printf("\n STEP 8\n");
 
     twolame_close(&encodeOptions);
-    free(pcmaudio);
 
     printf("\nFinished nicely.\n");
 
+    //file send
+    //uart_sendfile("../../../sine.mp2");
+
+    //uart_finish();
 
     return (0);
 }
-
-/* vim:ts=4:sw=4:nowrap: */
