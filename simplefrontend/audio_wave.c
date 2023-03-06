@@ -2,7 +2,7 @@
  *  TwoLAME: an optimized MPEG Audio Layer Two encoder
  *
  *  Copyright (C) 2001-2004 Michael Cheng
- *  Copyright (C) 2004-2018 The TwoLAME Project
+ *  Copyright (C) 2004-2006 The TwoLAME Project
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -17,6 +17,8 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *  $Id$
  *
  */
 
@@ -77,15 +79,24 @@ static void SwapBytesInWords(short *loc, int words)
 *
 *****************************************************************************/
 
-int wave_get_samples(wave_info_t * wave_info, short int pcm[], int numSamples)
+int wave_get_samples(wave_info_t * wave_info, short int *soundfile, int * unread_data, int numSamples)
 {
     int samples_read;
-    FILE *file = wave_info->soundfile;
 
-    samples_read = fread(pcm, sizeof(short int), numSamples, file);
+    if (*unread_data < numSamples) {
+        if (*unread_data > 0) {
+            samples_read = *unread_data;
+            *unread_data = 0;
+        } else {
+            samples_read = 0;
+        }
+    } else {
+        samples_read = numSamples;
+        *unread_data -= numSamples;
+    }
 
     if (wave_info->byteswap) {
-        SwapBytesInWords(pcm, samples_read);
+        SwapBytesInWords(soundfile, samples_read);
     }
 
     return (samples_read / wave_info->channels);
@@ -100,28 +111,23 @@ int wave_get_samples(wave_info_t * wave_info, short int pcm[], int numSamples)
 *  returns NULL if not open failed
 *  returns a wave_info_t * if wave header successfully parsed.
 *  needs to fill in : samplerate + channels
-*
+*  
 *  POST: wave_info->soundfile is set to be at the start of the
-*        PCM audio data
+*        PCM audio data 
 *
 *****************************************************************************/
 
-wave_info_t *wave_init(char *inPath)
+wave_info_t *wave_init(char *wave_file)
 {
-    unsigned char wave_header_buffer[40];   // HH fixed
+    //unsigned char wave_file[40];   // HH fixed
+    //int wave_header_read = 0;
     int wave_header_stereo = -1;
+    int wave_header_16bit = -1;
     unsigned long samplerate;
     enum byte_order NativeByteOrder = order_unknown;
 
 
     wave_info_t *wave_info = NULL;
-    FILE *file;
-
-    if ((file = fopen(inPath, "rb")) == NULL) {
-        printf("WAV: cannot open input file: %s\n", inPath);
-        return (NULL);
-    }
-
 
     /************** WAVE ************************/
     /* Nick Burch <The_Leveller@newmail.net> */
@@ -138,33 +144,30 @@ wave_info_t *wave_init(char *inPath)
     /* 04 = x4 (16bit Stereo) */
     /********************************************/
 
-    fseek(file, 0, SEEK_SET);
-    if (fread(wave_header_buffer, 1, 40, file) != 40)
-        return (NULL);
+    //fread(wave_file, 1, 40, file);
+    printf("\nwave_init()\n");
 
-    if (wave_header_buffer[8] == 'W' && wave_header_buffer[9] == 'A'
-            && wave_header_buffer[10] == 'V' && wave_header_buffer[11] == 'E') {
+    if (wave_file[8] == 'W' && wave_file[9] == 'A'
+        && wave_file[10] == 'V' && wave_file[11] == 'E') {
         printf("Parsing Wave File Header\n");
         if (NativeByteOrder == order_unknown) {
             NativeByteOrder = DetermineByteOrder();
             if (NativeByteOrder == order_unknown) {
                 printf("byte order not determined\n");
-                fclose(file);
                 return (NULL);
             }
         }
 
         if (NativeByteOrder == order_littleEndian) {
-            samplerate = wave_header_buffer[24] +
-                         (wave_header_buffer[25] << 8) +
-                         (wave_header_buffer[26] << 16) + (wave_header_buffer[27] << 24);
+            samplerate = *(unsigned long *) (&wave_file[24]);
         } else {
-            samplerate = wave_header_buffer[27] +
-                         (wave_header_buffer[26] << 8) +
-                         (wave_header_buffer[25] << 16) + (wave_header_buffer[24] << 24);
+            samplerate = wave_file[27] +
+                (wave_file[26] << 8) +
+                (wave_file[25] << 16) + (wave_file[24] << 24);
         }
 
         /* Wave File */
+        //wave_header_read = 1;
         switch (samplerate) {
         case 44100:
         case 48000:
@@ -182,47 +185,53 @@ wave_info_t *wave_init(char *inPath)
             break;
         }
 
-        if ((long) wave_header_buffer[22] == 1) {
+        if ((long) wave_file[22] == 1) {
             printf(">>> Input Wave File is Mono\n");
             wave_header_stereo = 0;
         }
-        if ((long) wave_header_buffer[22] == 2) {
+        if ((long) wave_file[22] == 2) {
             printf(">>> Input Wave File is Stereo\n");
             wave_header_stereo = 1;
         }
-        if ((long) wave_header_buffer[32] == 1) {
+        if ((long) wave_file[32] == 1) {
             printf(">>> Input Wave File is 8 Bit\n");
+            wave_header_16bit = 0;
             printf("Input File must be 16 Bit! Please Re-sample");
-            fclose(file);
             return (NULL);
         }
-        if ((long) wave_header_buffer[32] == 2) {
+        if ((long) wave_file[32] == 2) {
             if (wave_header_stereo == 1) {
                 printf(">>> Input Wave File is 8 Bit\n");
+                wave_header_16bit = 0;
                 printf("Input File must be 16 Bit! Please Re-sample");
-                fclose(file);
                 return (NULL);
+            } else {
+                /* printf(">>> Input Wave File is 16 Bit\n" ); */
+                wave_header_16bit = 1;
             }
+        }
+        if ((long) wave_file[32] == 4) {
+            /* printf(">>> Input Wave File is 16 Bit\n" ); */
+            wave_header_16bit = 1;
         }
 
         /* should probably use the wave header to determine size here FIXME MFC Feb 2003 */
-        if (fseek(file, 44, SEEK_SET) != 0) {
-            /* there's a way of calculating the size of the wave header. i'll just jump 44 to start
+        if (wave_file[44] != 0) {
+            /* there's a way of calculating the size of the wave header. i'll just jump 44 to start 
                with */
-            printf("Could not seek to PCM sound data in \"%s\".\n", inPath);
-            fclose(file);
+            printf("Could not seek to PCM sound data in wave file.\n");
             return (NULL);
         }
         // Successfully processed the wave header
         wave_info = (wave_info_t *) calloc(1, sizeof(wave_info_t));
-        wave_info->soundfile = file;
+        wave_info->soundfile = (short int *) &(wave_file[44]);
         if (wave_header_stereo == 1)
             wave_info->channels = 2;
         else
             wave_info->channels = 1;
         wave_info->samplerate = samplerate;
 
-        // UNKNOWN. But we really should be able to work
+        // UNKNOWN. But we really should be able to work 
         // it out. FIX THIS. MFC May03.
         wave_info->num_samples = -1;
 
@@ -235,7 +244,6 @@ wave_info_t *wave_init(char *inPath)
         return (wave_info);
     }
     // not a wave file
-    fclose(file);
     return (NULL);
 }
 
