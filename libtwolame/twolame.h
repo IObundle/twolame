@@ -150,7 +150,7 @@ TL_API const char *get_twolame_url(void);
 /** Print the library version and
  *  encoder parameter settings to STDERR.
  *
- *  Will display different amounts of information
+ *  Will display differnent ammounts of information
  *  depending on the verbosity setting.
  *  If verbosity is set to 0 then no message will be displayed.
  *
@@ -188,7 +188,7 @@ TL_API int twolame_init_params(twolame_options * glopts);
 
 /** Encode some 16-bit PCM audio to MP2.
  *
- *  Takes 16-bit PCM audio samples from separate left and right
+ *  Takes 16-bit PCM audio samples from seperate left and right
  *  buffers and places encoded audio into mp2buffer.
  *
  *  \param glopts          twolame options pointer
@@ -228,7 +228,7 @@ TL_API int twolame_encode_buffer_interleaved(twolame_options * glopts,
 
 /** Encode some 32-bit PCM audio to MP2.
  *
- *  Takes 32-bit floating point PCM audio samples from separate
+ *  Takes 32-bit floating point PCM audio samples from seperate
  *  left and right buffers and places encoded audio into mp2buffer.
  *
  *  Note: the 32-bit samples are currently scaled down to
@@ -263,7 +263,7 @@ TL_API int twolame_encode_buffer_float32(twolame_options * glopts,
  *  \return                The number of bytes put in output buffer
  *                         or a negative value on error
  */
-TL_API int twolame_encode_buffer_float32_interleaved(twolame_options * glopts,
+int twolame_encode_buffer_float32_interleaved(twolame_options * glopts,
         const float pcm[],
         int num_samples,
         unsigned char *mp2buffer, int mp2buffer_size);
@@ -378,7 +378,7 @@ TL_API TWOLAME_MPEG_version twolame_get_version(twolame_options * glopts);
 TL_API const char *twolame_get_version_name(twolame_options * glopts);
 
 
-/** Set the freeformat stream mode.
+/** Set the freeformat strem mode.
  *
  *  \param glopts          pointer to twolame options pointer
  *  \param freef           freeformat mode ( TRUE / FALSE )
@@ -689,7 +689,7 @@ TL_API int twolame_get_error_protection(twolame_options * glopts);
 TL_API int twolame_set_copyright(twolame_options * glopts, int copyright);
 
 
-/** Get the copyright flag state
+/** Get the copright flag state
  *
  *  \param glopts          pointer to twolame options pointer
  *  \return                state of the copyright flag (TRUE/FALSE)
@@ -775,6 +775,14 @@ TL_API int twolame_set_VBR_level(twolame_options * glopts, float level);
  */
 TL_API float twolame_get_VBR_level(twolame_options * glopts);
 
+
+
+/*
+   Using the twolame_set_VBR_q()/twolame_get_VBR_q functions
+   are deprecated, please use twolame_set_VBR_level() instead.
+*/
+TL_API int twolame_set_VBR_q(twolame_options * glopts, float level);
+TL_API float twolame_get_VBR_q(twolame_options * glopts);
 
 
 /** Set the adjustment (in dB) applied to the ATH for Psycho models 3 and 4.
