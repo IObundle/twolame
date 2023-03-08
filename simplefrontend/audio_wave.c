@@ -157,13 +157,15 @@ wave_info_t *wave_init(char *wave_file)
                 return (NULL);
             }
         }
-
+        
         if (NativeByteOrder == order_littleEndian) {
-            samplerate = *(unsigned long *) (&wave_file[24]);
+            samplerate = wave_file[24] +
+                         (wave_file[25] << 8) +
+                         (wave_file[26] << 16) + (wave_file[27] << 24);
         } else {
             samplerate = wave_file[27] +
-                (wave_file[26] << 8) +
-                (wave_file[25] << 16) + (wave_file[24] << 24);
+                         (wave_file[26] << 8) +
+                         (wave_file[25] << 16) + (wave_file[24] << 24);
         }
 
         /* Wave File */
@@ -224,7 +226,8 @@ wave_info_t *wave_init(char *wave_file)
         }
         // Successfully processed the wave header
         wave_info = (wave_info_t *) calloc(1, sizeof(wave_info_t));
-        wave_info->soundfile = (short int *) &(wave_file[44]);
+        short *file = (short *) (&(wave_file[44]));
+        wave_info->soundfile = file;
         if (wave_header_stereo == 1)
             wave_info->channels = 2;
         else
