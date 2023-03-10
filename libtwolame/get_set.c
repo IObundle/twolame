@@ -40,7 +40,7 @@
 int twolame_set_mode(twolame_options * glopts, TWOLAME_MPEG_mode mode)
 {
     if (mode < TWOLAME_AUTO_MODE || mode > TWOLAME_MONO) {
-        fprintf(stderr, "invalid mode %i\n", mode);
+        printf("invalid mode %i\n", mode);
         return (-1);
     }
     glopts->mode = mode;
@@ -91,7 +91,7 @@ int twolame_get_num_channels(twolame_options * glopts)
 int twolame_set_scale(twolame_options * glopts, float scale)
 {
     if (scale < 0) {
-        fprintf(stderr, "invalid scaling amount %f\n", scale);
+        printf("invalid scaling amount %f\n", scale);
         return (-1);
     }
     glopts->scale = scale;
@@ -106,7 +106,7 @@ float twolame_get_scale(twolame_options * glopts)
 int twolame_set_scale_left(twolame_options * glopts, float scale)
 {
     if (scale < 0) {
-        fprintf(stderr, "invalid scaling amount %f\n", scale);
+        printf("invalid scaling amount %f\n", scale);
         return (-1);
     }
     glopts->scale_left = scale;
@@ -121,7 +121,7 @@ float twolame_get_scale_left(twolame_options * glopts)
 int twolame_set_scale_right(twolame_options * glopts, float scale)
 {
     if (scale < 0) {
-        fprintf(stderr, "invalid scaling amount %f\n", scale);
+        printf("invalid scaling amount %f\n", scale);
         return (-1);
     }
     glopts->scale_right = scale;
@@ -352,7 +352,7 @@ int twolame_get_quick_count(twolame_options * glopts)
 int twolame_set_verbosity(twolame_options * glopts, int verbosity)
 {
     if (verbosity < 0 || verbosity > 10) {
-        fprintf(stderr, "invalid verbosity level %i\n", verbosity);
+        printf("invalid verbosity level %i\n", verbosity);
         return (-1);
     }
     glopts->verbosity = verbosity;
@@ -524,7 +524,7 @@ int twolame_set_DAB_scf_crc(twolame_options * glopts,
     }
     else
     {
-        fprintf(stderr, "Invalid size of DAB scf-crc field\n");
+        printf("Invalid size of DAB scf-crc field\n");
         return (-1);
     }
     return (0);

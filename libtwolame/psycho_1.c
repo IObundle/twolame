@@ -50,11 +50,11 @@ static int *psycho_1_read_cbound(int lay, int freq, int *crit_band)
     int i, k;
 
     if ((lay < 1) || (lay > 2)) {
-        fprintf(stderr, "Internal error (read_cbound())\n");
+        printf("Internal error (read_cbound())\n");
         return (NULL);
     }
     if ((freq < 0) || (freq > 6) || (freq == 3)) {
-        fprintf(stderr, "Internal error (read_cbound())\n");
+        printf("Internal error (read_cbound())\n");
         return (NULL);
     }
 
@@ -65,7 +65,7 @@ static int *psycho_1_read_cbound(int lay, int freq, int *crit_band)
         if (k != 0) {
             cbound[i] = k;
         } else {
-            fprintf(stderr, "Internal error (read_cbound())\n");
+            printf("Internal error (read_cbound())\n");
             return (NULL);
         }
     }
@@ -81,7 +81,7 @@ static void psycho_1_read_freq_band(g_ptr * ltg, int lay, int freq, int *sub_siz
     int i, k;
 
     if ((freq < 0) || (freq > 6) || (freq == 3)) {
-        fprintf(stderr, "Internal error (read_freq_band())\n");
+        printf("Internal error (read_freq_band())\n");
         return;
     }
 
@@ -99,7 +99,7 @@ static void psycho_1_read_freq_band(g_ptr * ltg, int lay, int freq, int *sub_siz
             (*ltg)[i].bark = SecondFreqSubband[freq][i - 1].bark;
             (*ltg)[i].hear = SecondFreqSubband[freq][i - 1].hear;
         } else {
-            fprintf(stderr, "Internal error (read_freq_band())\n");
+            printf("Internal error (read_freq_band())\n");
             return;
         }
     }

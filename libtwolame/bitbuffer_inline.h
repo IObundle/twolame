@@ -36,12 +36,12 @@ static inline void buffer_put1bit(bit_stream * bs, int bit)
                 bs->buf[bs->buf_byte_idx] = 0;
             }
             else {
-                fprintf(stderr, "buffer_put1bit: error. bit_stream buffer full\n");
+                printf("buffer_put1bit: error. bit_stream buffer full\n");
             }
         }
     }
     else
-        fprintf(stderr, "buffer_put1bit: error. bit_stream buffer needs to be bigger\n");
+        printf("buffer_put1bit: error. bit_stream buffer needs to be bigger\n");
 }
 
 /* write N bits into the bit stream */
@@ -65,7 +65,7 @@ static inline void buffer_putbits(bit_stream * bs, unsigned int val, int N)
                     bs->buf[bs->buf_byte_idx] = 0;
                 }
                 else {
-                    fprintf(stderr, "buffer_putbits: error. bit_stream buffer full\n");
+                    printf("buffer_putbits: error. bit_stream buffer full\n");
                     break;
                 }
             }
@@ -73,7 +73,7 @@ static inline void buffer_putbits(bit_stream * bs, unsigned int val, int N)
         }
     }
     else
-        fprintf(stderr, "buffer_putbits: error. bit_stream buffer needs to be bigger\n");
+        printf("buffer_putbits: error. bit_stream buffer needs to be bigger\n");
 }
 
 // vim:ts=4:sw=4:nowrap:

@@ -81,7 +81,7 @@ int twolame_get_bitrate_index(int bitrate, TWOLAME_MPEG_version version)
 
     // MFC sanity check.
     if (version != 0 && version != 1) {
-        fprintf(stderr, "twolame_get_bitrate_index: invalid version index %i\n", version);
+        printf("twolame_get_bitrate_index: invalid version index %i\n", version);
         return -1;
     }
 
@@ -90,8 +90,7 @@ int twolame_get_bitrate_index(int bitrate, TWOLAME_MPEG_version version)
             break;
 
     if (index == 15) {
-        fprintf(stderr,
-                "twolame_get_bitrate_index: %d is not a legal bitrate for version '%s'\n",
+        printf("twolame_get_bitrate_index: %d is not a legal bitrate for version '%s'\n",
                 bitrate, twolame_mpeg_version_name(version));
         return -1;
     }
@@ -117,7 +116,7 @@ int twolame_get_samplerate_index(long sample_rate)
     }
 
     // Invalid choice of samplerate
-    fprintf(stderr, "twolame_get_samplerate_index: %ld is not a legal sample rate\n", sample_rate);
+    printf("twolame_get_samplerate_index: %ld is not a legal sample rate\n", sample_rate);
     return -1;
 }
 
@@ -139,7 +138,7 @@ int twolame_get_version_for_samplerate(long sample_rate)
     }
 
     // Invalid choice of samplerate
-    fprintf(stderr, "twolame_get_version_for_samplerate: %ld is not a legal sample rate\n",
+    printf("twolame_get_version_for_samplerate: %ld is not a legal sample rate\n",
             sample_rate);
     return -1;
 }
@@ -171,7 +170,7 @@ int twolame_index_bitrate(int mpeg_ver, int index)
 //  encoder parameter settings to STDERR
 void twolame_print_config(twolame_options * glopts)
 {
-    FILE *fd = stderr;
+    //FILE *fd = stderr;
 
     // Are we being silent ?
     if (glopts->verbosity <= 0)
@@ -182,59 +181,59 @@ void twolame_print_config(twolame_options * glopts)
     // Are we being brief ?
     if (glopts->verbosity == 1) {
 
-        fprintf(fd, "LibTwoLame version %s (%s)\n", get_twolame_version(), get_twolame_url());
-        fprintf(fd, "Encoding as %dHz, ", twolame_get_out_samplerate(glopts));
-        fprintf(fd, "%d kbps, ", twolame_get_bitrate(glopts));
+        printf("LibTwoLame version %s (%s)\n", get_twolame_version(), get_twolame_url());
+        printf("Encoding as %dHz, ", twolame_get_out_samplerate(glopts));
+        printf("%d kbps, ", twolame_get_bitrate(glopts));
         if (twolame_get_VBR(glopts))
-            fprintf(fd, "VBR, ");
+            printf("VBR, ");
         else
-            fprintf(fd, "CBR, ");
-        fprintf(fd, "%s Layer II\n", twolame_get_version_name(glopts));
+            printf("CBR, ");
+        printf("%s Layer II\n", twolame_get_version_name(glopts));
 
     } else {
 
-        fprintf(fd, "---------------------------------------------------------\n");
-        fprintf(fd, "LibTwoLame %s (%s)\n", get_twolame_version(), get_twolame_url());
-        fprintf(fd, "Input : %d Hz, %d channels\n",
+        printf("---------------------------------------------------------\n");
+        printf("LibTwoLame %s (%s)\n", get_twolame_version(), get_twolame_url());
+        printf("Input : %d Hz, %d channels\n",
                 twolame_get_in_samplerate(glopts), twolame_get_num_channels(glopts));
-        fprintf(fd, "Output: %d Hz, %s\n",
+        printf("Output: %d Hz, %s\n",
                 twolame_get_out_samplerate(glopts), twolame_get_mode_name(glopts));
         if (twolame_get_VBR(glopts))
-            fprintf(fd, "VBR ");
+            printf("VBR ");
         else
-            fprintf(fd, "%d kbps CBR ", twolame_get_bitrate(glopts));
-        fprintf(fd, "%s Layer II ", twolame_get_version_name(glopts));
-        fprintf(fd, "psycho model=%d \n", twolame_get_psymodel(glopts));
+            printf("%d kbps CBR ", twolame_get_bitrate(glopts));
+        printf("%s Layer II ", twolame_get_version_name(glopts));
+        printf("psycho model=%d \n", twolame_get_psymodel(glopts));
 
-        fprintf(fd, "[De-emph:%s     Copyright:%s    Original:%s]\n",
+        printf("[De-emph:%s     Copyright:%s    Original:%s]\n",
                 ((twolame_get_emphasis(glopts)) ? "On " : "Off"),
                 ((twolame_get_copyright(glopts)) ? "Yes" : "No "),
                 ((twolame_get_original(glopts)) ? "Yes" : "No "));
 
-        fprintf(fd, "[Padding:%s  CRC:%s          Energy:%s  ]\n",
+        printf("[Padding:%s  CRC:%s          Energy:%s  ]\n",
                 ((twolame_get_padding(glopts)) ? "Normal" : "Off   "),
                 ((twolame_get_error_protection(glopts)) ? "On " : "Off"),
                 ((twolame_get_energy_levels(glopts)) ? "On " : "Off"));
 
         if (glopts->verbosity >= 3) {
             if (twolame_get_VBR(glopts)) {
-                fprintf(fd, " - VBR Enabled. Using MNR boost of %f\n",
+                printf(" - VBR Enabled. Using MNR boost of %f\n",
                         twolame_get_VBR_level(glopts));
-                fprintf(fd, " - VBR bitrate index limits [%i -> %i]\n", glopts->lower_index,
+                printf(" - VBR bitrate index limits [%i -> %i]\n", glopts->lower_index,
                         glopts->upper_index);
             }
 
-            fprintf(fd, " - ATH adjustment %f\n", twolame_get_ATH_level(glopts));
+            printf(" - ATH adjustment %f\n", twolame_get_ATH_level(glopts));
             if (twolame_get_num_ancillary_bits(glopts))
-                fprintf(fd, " - Reserving %i ancillary bits\n",
+                printf(" - Reserving %i ancillary bits\n",
                         twolame_get_num_ancillary_bits(glopts));
 
             if (twolame_get_scale(glopts) != 1.0f)
-                fprintf(fd, " - Scaling audio by %f\n", twolame_get_scale(glopts));
+                printf(" - Scaling audio by %f\n", twolame_get_scale(glopts));
             if (twolame_get_scale_left(glopts) != 1.0f)
-                fprintf(fd, " - Scaling left channel by %f\n", twolame_get_scale_left(glopts));
+                printf(" - Scaling left channel by %f\n", twolame_get_scale_left(glopts));
             if (twolame_get_scale_right(glopts) != 1.0f)
-                fprintf(fd, " - Scaling right channel by %f\n", twolame_get_scale_right(glopts));
+                printf(" - Scaling right channel by %f\n", twolame_get_scale_right(glopts));
 
             // if (glopts->num_channels_in == 2 && glopts->num_channels_out == 1 ) {
             // fprintf(fd, " - Downmixing from stereo to mono.\n");
@@ -243,7 +242,7 @@ void twolame_print_config(twolame_options * glopts)
             // }
         }
 
-        fprintf(fd, "---------------------------------------------------------\n");
+        printf("---------------------------------------------------------\n");
 
     }
 }
