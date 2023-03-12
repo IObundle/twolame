@@ -3,6 +3,7 @@
  *
  *  Copyright (C) 2001-2004 Michael Cheng
  *  Copyright (C) 2004-2018 The TwoLAME Project
+ *  Copyright (C) 2023 IObundle, Lda
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -277,17 +278,17 @@ static psycho_4_mem *twolame_psycho_4_init(twolame_options * glopts, int sfreq)
         /* Dump All the Values to STDERR */
         int wlow, whigh = 0;
         int ntot = 0;
-        fprintf(stderr, "psy model 4 init\n");
-        fprintf(stderr, "index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
+        printf("psy model 4 init\n");
+        printf("index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
         for (i = 0; i < CBANDS; i++)
             if (numlines[i] != 0) {
                 wlow = whigh + 1;
                 whigh = wlow + numlines[i] - 1;
-                fprintf(stderr, "%i \t%i \t%i \t%i \t%5.2f \t%4.2f \t%4.2f\n", i + 1, numlines[i],
+                printf("%i \t%i \t%i \t%i \t%5.2f \t%4.2f \t%4.2f\n", i + 1, numlines[i],
                         wlow, whigh, cbval[i], minval[(int) cbval[i]], tmn[i]);
                 ntot += numlines[i];
             }
-        fprintf(stderr, "total lines %i\n", ntot);
+        printf("total lines %i\n", ntot);
     }
 
     return (mem);

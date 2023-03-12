@@ -3,6 +3,7 @@
  *
  *  Copyright (C) 2001-2004 Michael Cheng
  *  Copyright (C) 2004-2018 The TwoLAME Project
+ *  Copyright (C) 2023 IObundle, Lda
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -36,7 +37,7 @@ void *twolame_malloc(size_t size, int line, char *file)
     void *ptr = (void *) calloc(size, 1);
 
     if (ptr == NULL) {
-        fprintf(stderr, "Unable to allocate %d bytes at line %d of %s\n", (int) size, line, file);
+        printf("Unable to allocate %d bytes at line %d of %s\n", (int) size, line, file);
     }
 
     return (ptr);

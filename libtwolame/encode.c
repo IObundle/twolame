@@ -3,6 +3,7 @@
  *
  *  Copyright (C) 2001-2004 Michael Cheng
  *  Copyright (C) 2004-2018 The TwoLAME Project
+ *  Copyright (C) 2023 IObundle, Lda
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -177,7 +178,7 @@ static int get_js_bound(int m_ext)
     static const int jsb_table[4] = { 4, 8, 12, 16 };
 
     if (m_ext < 0 || m_ext > 3) {
-        fprintf(stderr, "get_js_bound() bad modext (%d)\n", m_ext);
+        printf("get_js_bound() bad modext (%d)\n", m_ext);
         return -1;
     }
     return (jsb_table[m_ext]);
@@ -845,7 +846,7 @@ int twolame_init_bit_allocation(twolame_options * glopts)
         /* User is requesting a specific upperbitrate */
         if ((glopts->vbr_upper_index < glopts->lower_index) ||
                 (glopts->vbr_upper_index > glopts->upper_index)) {
-            fprintf(stderr, "Can't satisfy upper bitrate index constraint. out of bounds. %i\n",
+            printf("Can't satisfy upper bitrate index constraint. out of bounds. %i\n",
                     glopts->vbr_upper_index);
             return -2;
         } else
@@ -967,15 +968,14 @@ void twolame_main_bit_allocation(twolame_options * glopts,
             int i;
             if ((glopts->vbr_frame_count++ % 1000) == 0) {
                 for (i = 1; i < 15; i++)
-                    fprintf(stderr, "%4i ", glopts->vbrstats[i]);
-                fprintf(stderr, "\n");
+                    printf("%4i ", glopts->vbrstats[i]);
+                printf("\n");
             }
 
             /* Print out *every* frames bitrateindex, bits required, and bits available at this
                bitrate */
             if (glopts->verbosity > 5)
-                fprintf(stderr,
-                        "> bitrate index %2i has %i bits available to encode the %i bits\n",
+                printf("> bitrate index %2i has %i bits available to encode the %i bits\n",
                         header->bitrate_index, *adb,
                         twolame_bits_for_nonoise(glopts, SMR, scfsi, glopts->vbrlevel, bit_alloc));
 

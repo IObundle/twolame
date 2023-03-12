@@ -3,6 +3,7 @@
  *
  *  Copyright (C) 2001-2004 Michael Cheng
  *  Copyright (C) 2004-2018 The TwoLAME Project
+ *  Copyright (C) 2023 IObundle, Lda
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -62,7 +63,7 @@ int table;
 #include "psycho_2_absthr.h"
 
     if ((table < 0) || (table > 3)) {
-        fprintf(stderr, "internal error: wrong table number");
+        printf("internal error: wrong table number");
         return;
     }
 
@@ -138,10 +139,10 @@ psycho_2_mem *twolame_psycho_2_init(twolame_options * glopts, int sfreq)
         sfreq_idx = 2;
         break;
     default:
-        fprintf(stderr, "error, invalid sampling frequency: %d Hz\n", sfreq);
+        printf("error, invalid sampling frequency: %d Hz\n", sfreq);
         return NULL;
     }
-    fprintf(stderr, "absthr[][] sampling frequency index: %d\n", sfreq_idx);
+    printf("absthr[][] sampling frequency index: %d\n", sfreq_idx);
     psycho_2_read_absthr(mem->absthr, sfreq_idx);
 
 
@@ -236,12 +237,12 @@ psycho_2_mem *twolame_psycho_2_init(twolame_options * glopts, int sfreq)
     if (glopts->verbosity > 5) {
         /* Dump All the Values to stderr and exit */
         int wlow, whigh = 0;
-        fprintf(stderr, "psy model 2 init\n");
-        fprintf(stderr, "index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
+        printf("psy model 2 init\n");
+        printf("index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
         for (i = 0; i < CBANDS; i++) {
             wlow = whigh + 1;
             whigh = wlow + numlines[i] - 1;
-            fprintf(stderr, "%i \t%i \t%i \t%i \t%5.2f \t%4.2f \t%4.2f\n", i + 1, numlines[i], wlow,
+            printf("%i \t%i \t%i \t%i \t%5.2f \t%4.2f \t%4.2f\n", i + 1, numlines[i], wlow,
                     whigh, cbval[i], bmax[(int) (cbval[i] + 0.5)], tmn[i]);
         }
     }
