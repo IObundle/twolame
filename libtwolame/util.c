@@ -83,7 +83,7 @@ int twolame_get_bitrate_index(int bitrate, TWOLAME_MPEG_version version)
 
     // MFC sanity check.
     if (version != 0 && version != 1) {
-        printf( "twolame_get_bitrate_index: invalid version index %i\n", version);
+        printf("twolame_get_bitrate_index: invalid version index %i\n", version);
         return -1;
     }
 
@@ -92,8 +92,7 @@ int twolame_get_bitrate_index(int bitrate, TWOLAME_MPEG_version version)
             break;
 
     if (index == 15) {
-        printf(
-                "twolame_get_bitrate_index: %d is not a legal bitrate for version '%s'\n",
+        printf("twolame_get_bitrate_index: %d is not a legal bitrate for version '%s'\n",
                 bitrate, twolame_mpeg_version_name(version));
         return -1;
     }
@@ -119,7 +118,7 @@ int twolame_get_samplerate_index(long sample_rate)
     }
 
     // Invalid choice of samplerate
-    printf( "twolame_get_samplerate_index: %ld is not a legal sample rate\n", sample_rate);
+    printf("twolame_get_samplerate_index: %ld is not a legal sample rate\n", sample_rate);
     return -1;
 }
 
@@ -141,7 +140,7 @@ int twolame_get_version_for_samplerate(long sample_rate)
     }
 
     // Invalid choice of samplerate
-    printf( "twolame_get_version_for_samplerate: %ld is not a legal sample rate\n",
+    printf("twolame_get_version_for_samplerate: %ld is not a legal sample rate\n",
             sample_rate);
     return -1;
 }
