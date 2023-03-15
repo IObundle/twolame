@@ -31,6 +31,8 @@
 #include "common.h"
 #include "util.h"
 
+#include "iob-uart.h"
+
 
 // Return string containg version number
 // of this library
@@ -82,7 +84,7 @@ int twolame_get_bitrate_index(int bitrate, TWOLAME_MPEG_version version)
 
     // MFC sanity check.
     if (version != 0 && version != 1) {
-        printf("twolame_get_bitrate_index: invalid version index %i\n", version);
+        printf( "twolame_get_bitrate_index: invalid version index %i\n", version);
         return -1;
     }
 
@@ -91,7 +93,8 @@ int twolame_get_bitrate_index(int bitrate, TWOLAME_MPEG_version version)
             break;
 
     if (index == 15) {
-        printf("twolame_get_bitrate_index: %d is not a legal bitrate for version '%s'\n",
+        printf(
+                "twolame_get_bitrate_index: %d is not a legal bitrate for version '%s'\n",
                 bitrate, twolame_mpeg_version_name(version));
         return -1;
     }
@@ -117,7 +120,7 @@ int twolame_get_samplerate_index(long sample_rate)
     }
 
     // Invalid choice of samplerate
-    printf("twolame_get_samplerate_index: %ld is not a legal sample rate\n", sample_rate);
+    printf( "twolame_get_samplerate_index: %ld is not a legal sample rate\n", sample_rate);
     return -1;
 }
 
@@ -139,7 +142,7 @@ int twolame_get_version_for_samplerate(long sample_rate)
     }
 
     // Invalid choice of samplerate
-    printf("twolame_get_version_for_samplerate: %ld is not a legal sample rate\n",
+    printf( "twolame_get_version_for_samplerate: %ld is not a legal sample rate\n",
             sample_rate);
     return -1;
 }
@@ -186,21 +189,21 @@ void twolame_print_config(twolame_options * glopts)
         printf("Encoding as %dHz, ", twolame_get_out_samplerate(glopts));
         printf("%d kbps, ", twolame_get_bitrate(glopts));
         if (twolame_get_VBR(glopts))
-            printf("VBR, ");
+            uart_puts("VBR, ");
         else
-            printf("CBR, ");
+            uart_puts("CBR, ");
         printf("%s Layer II\n", twolame_get_version_name(glopts));
 
     } else {
 
-        printf("---------------------------------------------------------\n");
+        uart_puts("---------------------------------------------------------\n");
         printf("LibTwoLame %s (%s)\n", get_twolame_version(), get_twolame_url());
         printf("Input : %d Hz, %d channels\n",
                 twolame_get_in_samplerate(glopts), twolame_get_num_channels(glopts));
         printf("Output: %d Hz, %s\n",
                 twolame_get_out_samplerate(glopts), twolame_get_mode_name(glopts));
         if (twolame_get_VBR(glopts))
-            printf("VBR ");
+            uart_puts("VBR ");
         else
             printf("%d kbps CBR ", twolame_get_bitrate(glopts));
         printf("%s Layer II ", twolame_get_version_name(glopts));
@@ -237,13 +240,13 @@ void twolame_print_config(twolame_options * glopts)
                 printf(" - Scaling right channel by %f\n", twolame_get_scale_right(glopts));
 
             // if (glopts->num_channels_in == 2 && glopts->num_channels_out == 1 ) {
-            // fprintf(fd, " - Downmixing from stereo to mono.\n");
+            // uart_puts(fd, " - Downmixing from stereo to mono.\n");
             // } else if (glopts->num_channels_in == 1 && glopts->num_channels_out == 2 ) {
-            // fprintf(fd, " - Upmixing from mono to stereo.\n");
+            // uart_puts(fd, " - Upmixing from mono to stereo.\n");
             // }
         }
 
-        printf("---------------------------------------------------------\n");
+        uart_puts("---------------------------------------------------------\n");
 
     }
 }

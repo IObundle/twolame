@@ -48,6 +48,7 @@
 
 #include "bitbuffer_inline.h"
 
+#include "iob-uart.h"
 
 /*
   twolame_init
@@ -138,7 +139,7 @@ static int init_header_info(twolame_options * glopts)
     // Convert the sampling frequency to the required index
     header->samplerate_idx = twolame_get_samplerate_index(glopts->samplerate_out);
     if (header->samplerate_idx < 0) {
-        printf("Not a valid samplerate: %i\n", glopts->samplerate_out);
+        printf( "Not a valid samplerate: %i\n", glopts->samplerate_out);
         return -1;
     }
 
@@ -149,7 +150,7 @@ static int init_header_info(twolame_options * glopts)
     {
         header->bitrate_index = twolame_get_bitrate_index(glopts->bitrate, header->version);
         if (header->bitrate_index < 0) {
-            printf("Not a valid bitrate (%i) for MPEG version '%s'\n", glopts->bitrate,
+            printf( "Not a valid bitrate (%i) for MPEG version '%s'\n", glopts->bitrate,
                     twolame_mpeg_version_name(glopts->version));
             return -1;
         }
@@ -160,7 +161,7 @@ static int init_header_info(twolame_options * glopts)
         /* convert max VBR bitrate to an index */
         glopts->vbr_upper_index = twolame_get_bitrate_index(glopts->vbr_max_bitrate, header->version);
         if (glopts->vbr_upper_index < 0) {
-            printf("Not a valid max VBR bitrate for this version: %i\n",
+            printf( "Not a valid max VBR bitrate for this version: %i\n",
                     glopts->vbr_max_bitrate);
             return -1;
         }
@@ -189,18 +190,20 @@ int twolame_init_params(twolame_options * glopts)
 {
 
     if (glopts->twolame_init) {
-        printf("Already called twolame_init_params() once.\n");
+        uart_puts( "Already called twolame_init_params() once.\n");
         return 1;
     }
     // Check the number of channels
     if (glopts->num_channels_in != 1 && glopts->num_channels_in != 2) {
         if (glopts->num_channels_in == 0) {
             /* this error is due to the caller frontend */
-            printf("twolame_init_params(): must specify number of input channels using twolame_set_num_channels().\n");
+            uart_puts(
+                    "twolame_init_params(): must specify number of input channels using twolame_set_num_channels().\n");
         }
         else {
             /* this error is due to the user feeding a wrong file */
-            printf("Error: twolame cannot encode files with more than 2 channels.\n");
+            uart_puts(
+                    "Error: twolame cannot encode files with more than 2 channels.\n");
         }
         return -1;
     }
@@ -213,11 +216,11 @@ int twolame_init_params(twolame_options * glopts)
         // Get the MPEG version for the chosen samplerate
         glopts->version = twolame_get_version_for_samplerate(glopts->samplerate_out);
         if (glopts->version < 0) {
-            printf("twolame_init_params(): invalid samplerate: %i\n",
+            printf( "twolame_init_params(): invalid samplerate: %i\n",
                     glopts->samplerate_out);
             return -1;
         } else if (glopts->verbosity >= 3) {
-            printf("Chosen version '%s' for samplerate of %d Hz.\n",
+            printf( "Chosen version '%s' for samplerate of %d Hz.\n",
                     twolame_mpeg_version_name(glopts->version), glopts->samplerate_out);
         }
     }
@@ -228,7 +231,7 @@ int twolame_init_params(twolame_options * glopts)
         else
             glopts->mode = TWOLAME_MONO;
         if (glopts->verbosity >= 3) {
-            printf("Chosen mode to be '%s' because of %d input channels.\n",
+            printf( "Chosen mode to be '%s' because of %d input channels.\n",
                     twolame_get_mode_name(glopts), glopts->num_channels_in);
         }
     }
@@ -278,7 +281,7 @@ int twolame_init_params(twolame_options * glopts)
             }
         }
         if (glopts->verbosity >= 3) {
-            printf("Chosen bitrate of %dkbps for samplerate of %d Hz.\n",
+            printf( "Chosen bitrate of %dkbps for samplerate of %d Hz.\n",
                     glopts->bitrate, glopts->samplerate_out);
         }
         glopts->freeformat = FALSE;   // no sense in requiring freeformat encoding without setting a bitrate
@@ -297,14 +300,14 @@ int twolame_init_params(twolame_options * glopts)
         /* some limitation apply for MPEG1 when CBR and freeformat is not selected */
         if (glopts->mode == TWOLAME_MONO) {
             if (glopts->bitrate > 192) {
-                printf("twolame_init_params(): %dkbps is an invalid bitrate for mono encoding.\n",
+                printf( "twolame_init_params(): %dkbps is an invalid bitrate for mono encoding.\n",
                         glopts->bitrate);
                 return -1;
             }
         }
         else {
             if (glopts->bitrate < 64 || glopts->bitrate == 80) {
-                printf("twolame_init_params(): %dkbps is an invalid bitrate for 2ch encoding.\n",
+                printf( "twolame_init_params(): %dkbps is an invalid bitrate for 2ch encoding.\n",
                         glopts->bitrate);
                 return -1;
             }
@@ -314,7 +317,7 @@ int twolame_init_params(twolame_options * glopts)
     /* Can't do DAB and energylevel extensions at the same time Because both of them think they're
        the only ones inserting information into the ancillary section of the frame */
     if (glopts->do_dab && glopts->do_energy_levels) {
-        printf("Error: Can't do DAB and Energy Levels at the same time\n");
+        uart_puts( "Error: Can't do DAB and Energy Levels at the same time\n");
         return -1;
     }
 
@@ -331,7 +334,7 @@ int twolame_init_params(twolame_options * glopts)
     if (glopts->do_energy_levels) {
         int required = twolame_get_required_energy_bits(glopts);
         if (glopts->num_ancillary_bits < required) {
-            printf("Warning: Too few ancillary bits to store energy levels: %i<%i\n",
+            printf( "Warning: Too few ancillary bits to store energy levels: %i<%i\n",
                     glopts->num_ancillary_bits, required);
             return -1;
         }
@@ -345,7 +348,7 @@ int twolame_init_params(twolame_options * glopts)
      * bits_for_nonoise in vbr mode
      */
     if (glopts->vbr && glopts->mode == TWOLAME_JOINT_STEREO) {
-        printf("Warning: Can't do Joint Stereo with VBR, switching to normal stereo.\n");
+        uart_puts( "Warning: Can't do Joint Stereo with VBR, switching to normal stereo.\n");
 
         // force stereo mode
         twolame_set_mode(glopts, TWOLAME_STEREO);
@@ -353,14 +356,14 @@ int twolame_init_params(twolame_options * glopts)
 
     /* Can't do padding and VBR at same time */
     if (glopts->vbr && glopts->padding == TRUE) {
-        printf("Error: Can't do padding and VBR at same time\n");
+        uart_puts( "Error: Can't do padding and VBR at same time\n");
         return -1;
     }
 
     /* Simple patch for the `bit_stream buffer needs to be bigger' warning */
     /* Fix FREEFORMAT_MAX_BITRATE definition when github issue #51 will be closed */
     if (glopts->freeformat && glopts->bitrate > FREEFORMAT_MAX_BITRATE) {
-        printf("twolame_init_params(): cannot encode freeformat stream at %d kbps\n", glopts->bitrate);
+        printf( "twolame_init_params(): cannot encode freeformat stream at %d kbps\n", glopts->bitrate);
         return -1;
     }
 
@@ -383,7 +386,8 @@ int twolame_init_params(twolame_options * glopts)
     }
     // Check input samplerate is same as output samplerate
     if (glopts->samplerate_out != glopts->samplerate_in) {
-        printf("twolame_init_params(): sorry, twolame doesn't support resampling (yet).\n");
+        uart_puts(
+                "twolame_init_params(): sorry, twolame doesn't support resampling (yet).\n");
         return -1;
     }
 
@@ -494,7 +498,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
     short sam[2][1056];
 
     if (!glopts->twolame_init) {
-        printf("Please call twolame_init_params() before starting encoding.\n");
+        uart_puts( "Please call twolame_init_params() before starting encoding.\n");
         return -1;
     }
     // Scale and mix the input buffer
@@ -518,8 +522,9 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
         /* Trying to reserve more than 60% of the frame. 0.6 is arbitrary. but since most
            applications probably only want to reserve a few bytes, this seems fine. Typical frame
            size is about 800bytes */
-        printf("You're trying to reserve more than 60%% of the mpeg frame for ancillary data\n");
-        printf("This is probably an error. But I'll keep going anyway...\n");
+        uart_puts(
+                "You're trying to reserve more than 60%% of the mpeg frame for ancillary data\n");
+        uart_puts( "This is probably an error. But I'll keep going anyway...\n");
     }
 
     adb -= glopts->num_ancillary_bits;
@@ -580,7 +585,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
             twolame_psycho_4(glopts, glopts->buffer, sam, glopts->smr);
             break;
         default:
-            printf("Invalid psy model specification: %i\n", glopts->psymodel);
+            printf( "Invalid psy model specification: %i\n", glopts->psymodel);
             return -1;
             break;
         }
@@ -638,10 +643,10 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
     // Calulate the number of bits in this frame
     frameBits = twolame_buffer_sstell(bs) - initial_bits;
     if (frameBits % 8) {        /* a program failure */
-        printf("Sent %ld bits = %ld slots plus %ld\n", frameBits, frameBits / 8,
+        printf( "Sent %ld bits = %ld slots plus %ld\n", frameBits, frameBits / 8,
                 frameBits % 8);
-        printf("If you are reading this, the program is broken\n");
-        printf("email %s with the command line arguments and other info\n",
+        uart_puts( "If you are reading this, the program is broken\n");
+        printf( "email %s with the command line arguments and other info\n",
                 PACKAGE_BUGREPORT);
         return -1;
     }
@@ -654,7 +659,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
         unsigned char *frame_ptr = bs->buf + (initial_bits >> 3);
         twolame_crc_writeheader(frame_ptr, glopts->num_crc_bits);
     }
-    // fprintf(stderr,"Frame size: %li\n\n",frameBits/8);
+    // uart_puts("Frame size: %li\n\n",frameBits/8);
 
     return frameBits / 8;
 }

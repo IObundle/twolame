@@ -33,6 +33,8 @@
 #include "ath.h"
 #include "psycho_4.h"
 
+#include "iob-uart.h"
+
 /****************************************************************
 PSYCHO_4 by MFC Feb 2003
 
@@ -222,7 +224,7 @@ static psycho_4_mem *twolame_psycho_4_init(twolame_options * glopts, int sfreq)
            with index 0 corresponding to (sampling freq)/1024. When in doubt, i'm going to assume
            that the dist10 code is wrong. MFC Feb2003 */
         ath[i] = twolame_ath_energy(freq, glopts->athlevel);
-        // fprintf(stderr,"%.2f ",ath[i]);
+        // uart_puts("%.2f ",ath[i]);
     }
 
 
@@ -278,17 +280,17 @@ static psycho_4_mem *twolame_psycho_4_init(twolame_options * glopts, int sfreq)
         /* Dump All the Values to STDERR */
         int wlow, whigh = 0;
         int ntot = 0;
-        printf("psy model 4 init\n");
-        printf("index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
+        uart_puts( "psy model 4 init\n");
+        uart_puts( "index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
         for (i = 0; i < CBANDS; i++)
             if (numlines[i] != 0) {
                 wlow = whigh + 1;
                 whigh = wlow + numlines[i] - 1;
-                printf("%i \t%i \t%i \t%i \t%5.2f \t%4.2f \t%4.2f\n", i + 1, numlines[i],
+                printf( "%i \t%i \t%i \t%i \t%5.2f \t%4.2f \t%4.2f\n", i + 1, numlines[i],
                         wlow, whigh, cbval[i], minval[(int) cbval[i]], tmn[i]);
                 ntot += numlines[i];
             }
-        printf("total lines %i\n", ntot);
+        printf( "total lines %i\n", ntot);
     }
 
     return (mem);

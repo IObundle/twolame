@@ -34,14 +34,14 @@
 #include "util.h"
 #include "energy.h"
 
-
+#include "iob-uart.h"
 
 /*********************************************/
 
 int twolame_set_mode(twolame_options * glopts, TWOLAME_MPEG_mode mode)
 {
     if (mode < TWOLAME_AUTO_MODE || mode > TWOLAME_MONO) {
-        printf("invalid mode %i\n", mode);
+        printf( "invalid mode %i\n", mode);
         return (-1);
     }
     glopts->mode = mode;
@@ -92,7 +92,7 @@ int twolame_get_num_channels(twolame_options * glopts)
 int twolame_set_scale(twolame_options * glopts, float scale)
 {
     if (scale < 0) {
-        printf("invalid scaling amount %f\n", scale);
+        printf( "invalid scaling amount %f\n", scale);
         return (-1);
     }
     glopts->scale = scale;
@@ -107,7 +107,7 @@ float twolame_get_scale(twolame_options * glopts)
 int twolame_set_scale_left(twolame_options * glopts, float scale)
 {
     if (scale < 0) {
-        printf("invalid scaling amount %f\n", scale);
+        printf( "invalid scaling amount %f\n", scale);
         return (-1);
     }
     glopts->scale_left = scale;
@@ -122,7 +122,7 @@ float twolame_get_scale_left(twolame_options * glopts)
 int twolame_set_scale_right(twolame_options * glopts, float scale)
 {
     if (scale < 0) {
-        printf("invalid scaling amount %f\n", scale);
+        printf( "invalid scaling amount %f\n", scale);
         return (-1);
     }
     glopts->scale_right = scale;
@@ -353,7 +353,7 @@ int twolame_get_quick_count(twolame_options * glopts)
 int twolame_set_verbosity(twolame_options * glopts, int verbosity)
 {
     if (verbosity < 0 || verbosity > 10) {
-        printf("invalid verbosity level %i\n", verbosity);
+        printf( "invalid verbosity level %i\n", verbosity);
         return (-1);
     }
     glopts->verbosity = verbosity;
@@ -525,7 +525,7 @@ int twolame_set_DAB_scf_crc(twolame_options * glopts,
     }
     else
     {
-        printf("Invalid size of DAB scf-crc field\n");
+        uart_puts( "Invalid size of DAB scf-crc field\n");
         return (-1);
     }
     return (0);

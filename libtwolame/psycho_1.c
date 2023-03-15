@@ -32,6 +32,8 @@
 #include "fft.h"
 #include "psycho_1.h"
 
+#include "iob-uart.h"
+
 /**********************************************************************
 
         This module implements the psychoacoustic model I for the
@@ -51,11 +53,11 @@ static int *psycho_1_read_cbound(int lay, int freq, int *crit_band)
     int i, k;
 
     if ((lay < 1) || (lay > 2)) {
-        printf("Internal error (read_cbound())\n");
+        uart_puts( "Internal error (read_cbound())\n");
         return (NULL);
     }
     if ((freq < 0) || (freq > 6) || (freq == 3)) {
-        printf("Internal error (read_cbound())\n");
+        uart_puts( "Internal error (read_cbound())\n");
         return (NULL);
     }
 
@@ -66,7 +68,7 @@ static int *psycho_1_read_cbound(int lay, int freq, int *crit_band)
         if (k != 0) {
             cbound[i] = k;
         } else {
-            printf("Internal error (read_cbound())\n");
+            uart_puts( "Internal error (read_cbound())\n");
             return (NULL);
         }
     }
@@ -82,7 +84,7 @@ static void psycho_1_read_freq_band(g_ptr * ltg, int lay, int freq, int *sub_siz
     int i, k;
 
     if ((freq < 0) || (freq > 6) || (freq == 3)) {
-        printf("Internal error (read_freq_band())\n");
+        uart_puts( "Internal error (read_freq_band())\n");
         return;
     }
 
@@ -100,7 +102,7 @@ static void psycho_1_read_freq_band(g_ptr * ltg, int lay, int freq, int *sub_siz
             (*ltg)[i].bark = SecondFreqSubband[freq][i - 1].bark;
             (*ltg)[i].hear = SecondFreqSubband[freq][i - 1].hear;
         } else {
-            printf("Internal error (read_freq_band())\n");
+            uart_puts( "Internal error (read_freq_band())\n");
             return;
         }
     }
@@ -321,7 +323,7 @@ static void psycho_1_noise_label(psycho_1_mem * mem, int *noise, FLOAT energy[FF
         if (sum <= DBMIN)
             centre = (cbound[i + 1] + cbound[i]) / 2;
         else {
-            /* fprintf(stderr, "%i [%f %f] -", count++,weight/pow(10.0,0.1*sum),
+            /* uart_puts( "%i [%f %f] -", count++,weight/pow(10.0,0.1*sum),
                weight*pow(10.0,-0.1*sum)); */
             index = weight * pow(10.0, -0.1 * sum);
             centre = cbound[i] + (int) (index * (FLOAT) (cbound[i + 1] - cbound[i]));
@@ -536,21 +538,21 @@ static void psycho_1_smr(FLOAT ltmin[SBLIMIT], FLOAT spike[SBLIMIT], FLOAT scale
 static void psycho_1_dump(mask power[HAN_SIZE], int *tone, int *noise) {
   int t;
 
-  fprintf(stderr,"1 Ton: ");
+  uart_puts("1 Ton: ");
   t=*tone;
   while (t!=LAST && t!=STOP) {
-    fprintf(stderr,"[%i] %3.0f ",t, power[t].x);
+    uart_puts("[%i] %3.0f ",t, power[t].x);
     t = power[t].next;
   }
-  fprintf(stderr,"\n");
+  uart_puts("\n");
 
-  fprintf(stderr,"1 Nos: ");
+  uart_puts("1 Nos: ");
   t=*noise;
   while (t!=LAST && t!=STOP) {
-    fprintf(stderr,"[%i] %3.0f ",t, power[t].x);
+    uart_puts("[%i] %3.0f ",t, power[t].x);
     t = power[t].next;
   }
-  fprintf(stderr,"\n");
+  uart_puts("\n");
 }
 */
 

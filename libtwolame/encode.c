@@ -35,6 +35,8 @@
 
 #include "bitbuffer_inline.h"
 
+#include "iob-uart.h"
+
 
 static const FLOAT multiple[64] = {
     2.00000000000000, 1.58740105196820, 1.25992104989487,
@@ -178,7 +180,7 @@ static int get_js_bound(int m_ext)
     static const int jsb_table[4] = { 4, 8, 12, 16 };
 
     if (m_ext < 0 || m_ext > 3) {
-        printf("get_js_bound() bad modext (%d)\n", m_ext);
+        printf( "get_js_bound() bad modext (%d)\n", m_ext);
         return -1;
     }
     return (jsb_table[m_ext]);
@@ -215,7 +217,7 @@ int twolame_encode_init(twolame_options * glopts)
     // glopts->sblimit = pick_table ( glopts );
     /* MFC FIX this up */
     glopts->sblimit = table_sblimit[glopts->tablenum];
-    // fprintf(stderr,"twolame_encode_init: using tablenum %i with sblimit %i\n",glopts->tablenum,
+    // uart_puts("twolame_encode_init: using tablenum %i with sblimit %i\n",glopts->tablenum,
     // glopts->sblimit);
 
     if (glopts->mode == TWOLAME_JOINT_STEREO)
@@ -229,28 +231,28 @@ int twolame_encode_init(twolame_options * glopts)
 #ifdef DUMPTABLES
     {
         int tablenumber, j, sblimit, sb;
-        fprintf(stderr, "Tables B.21,b,c,d from ISO11172 and the LSF table from ISO13818\n");
+        uart_puts( "Tables B.21,b,c,d from ISO11172 and the LSF table from ISO13818\n");
         for (tablenumber = 0; tablenumber < NUMTABLES; tablenumber++) {
             /* Print Table Header */
-            fprintf(stderr, "Tablenum %i\n", tablenumber);
-            fprintf(stderr, "sb nbal ");
+            uart_puts( "Tablenum %i\n", tablenumber);
+            uart_puts( "sb nbal ");
             for (j = 0; j < 16; j++)
-                fprintf(stderr, "%6i ", j);
-            fprintf(stderr, "\n");
-            fprintf(stderr,
+                uart_puts( "%6i ", j);
+            uart_puts( "\n");
+            uart_puts(
                     "-----------------------------------------------------------------------------------------------------------------------\n");
 
             sblimit = table_sblimit[tablenumber];
             for (sb = 0; sb < SBLIMIT; sb++) {
                 int thisline = line[tablenumber][sb];
-                fprintf(stderr, "%2i %4i ", sb, nbal[thisline]);
+                uart_puts( "%2i %4i ", sb, nbal[thisline]);
                 if (nbal[thisline] != 0) {
                     for (j = 0; j < (1 << nbal[thisline]); j++)
-                        fprintf(stderr, "%6i ", steps[step_index[thisline][j]]);
+                        uart_puts( "%6i ", steps[step_index[thisline][j]]);
                 }
-                fprintf(stderr, "\n");
+                uart_puts( "\n");
             }
-            fprintf(stderr, "\n");
+            uart_puts( "\n");
         }
     }
 #endif
@@ -322,7 +324,7 @@ void twolame_scalefactor_calc(FLOAT sb_sample[][3][SCALE_BLOCK][SBLIMIT],
                    but since it involves a log it isn't really speedy. Items in the scalefactor[]
                    table are calculated by: the n'th entry = 2 / (cuberoot(2) ^ n) And so using a
                    bit of maths you get: index = (int)(log(2.0/cur_max) / LNCUBEROOTTWO);
-                   fprintf(stderr,"cur_max %.14lf scalefactorindex %i multiple %.14lf\n",cur_max,
+                   uart_puts("cur_max %.14lf scalefactorindex %i multiple %.14lf\n",cur_max,
                    scale_fac, scalefactor[scale_fac]); */
             }
         }
@@ -608,7 +610,7 @@ void twolame_subband_quantization(twolame_options * glopts,
                            result in a scaled sample being > 1.0 This error shouldn't ever happen
                            *unless* something went wrong in scalefactor calc
 
-                           if (mod (d) > 1.0) fprintf (stderr, "Not scaled properly %d %d %d %d\n",
+                           if (mod (d) > 1.0) uart_puts ( "Not scaled properly %d %d %d %d\n",
                            ch, gr, j, sb); */
 
                         {
@@ -846,7 +848,7 @@ int twolame_init_bit_allocation(twolame_options * glopts)
         /* User is requesting a specific upperbitrate */
         if ((glopts->vbr_upper_index < glopts->lower_index) ||
                 (glopts->vbr_upper_index > glopts->upper_index)) {
-            printf("Can't satisfy upper bitrate index constraint. out of bounds. %i\n",
+            printf( "Can't satisfy upper bitrate index constraint. out of bounds. %i\n",
                     glopts->vbr_upper_index);
             return -2;
         } else
@@ -968,14 +970,15 @@ void twolame_main_bit_allocation(twolame_options * glopts,
             int i;
             if ((glopts->vbr_frame_count++ % 1000) == 0) {
                 for (i = 1; i < 15; i++)
-                    printf("%4i ", glopts->vbrstats[i]);
-                printf("\n");
+                    printf( "%4i ", glopts->vbrstats[i]);
+                uart_puts( "\n");
             }
 
             /* Print out *every* frames bitrateindex, bits required, and bits available at this
                bitrate */
             if (glopts->verbosity > 5)
-                printf("> bitrate index %2i has %i bits available to encode the %i bits\n",
+                printf(
+                        "> bitrate index %2i has %i bits available to encode the %i bits\n",
                         header->bitrate_index, *adb,
                         twolame_bits_for_nonoise(glopts, SMR, scfsi, glopts->vbrlevel, bit_alloc));
 
@@ -1003,7 +1006,7 @@ static void vbr_maxmnr(FLOAT mnr[2][SBLIMIT], char used[2][SBLIMIT], int sblimit
             if (mnr[ch][sb] < vbrlevel) {
                 *min_sb = sb;
                 *min_ch = ch;
-                // fprintf(stderr,".");
+                // uart_puts(".");
                 // fflush(stderr);
                 return;
             }
@@ -1017,7 +1020,7 @@ static void vbr_maxmnr(FLOAT mnr[2][SBLIMIT], char used[2][SBLIMIT], int sblimit
                 *min_sb = sb;
                 *min_ch = ch;
             }
-    // fprintf(stderr,"Min sb: %i\n",*min_sb);
+    // uart_puts("Min sb: %i\n",*min_sb);
 }
 
 
