@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -222,7 +223,7 @@ static psycho_4_mem *twolame_psycho_4_init(twolame_options * glopts, int sfreq)
            with index 0 corresponding to (sampling freq)/1024. When in doubt, i'm going to assume
            that the dist10 code is wrong. MFC Feb2003 */
         ath[i] = twolame_ath_energy(freq, glopts->athlevel);
-        // fprintf(stderr,"%.2f ",ath[i]);
+        // printf("%.2f ",ath[i]);
     }
 
 

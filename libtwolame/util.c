@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -237,9 +238,9 @@ void twolame_print_config(twolame_options * glopts)
                 printf(" - Scaling right channel by %f\n", twolame_get_scale_right(glopts));
 
             // if (glopts->num_channels_in == 2 && glopts->num_channels_out == 1 ) {
-            // fprintf(fd, " - Downmixing from stereo to mono.\n");
+            // printf(fd, " - Downmixing from stereo to mono.\n");
             // } else if (glopts->num_channels_in == 1 && glopts->num_channels_out == 2 ) {
-            // fprintf(fd, " - Upmixing from mono to stereo.\n");
+            // printf(fd, " - Upmixing from mono to stereo.\n");
             // }
         }
 

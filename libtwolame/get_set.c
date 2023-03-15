@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -33,8 +34,6 @@
 #include "mem.h"
 #include "util.h"
 #include "energy.h"
-
-
 
 /*********************************************/
 

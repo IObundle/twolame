@@ -22,7 +22,8 @@
  */
 
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -215,7 +216,7 @@ int twolame_encode_init(twolame_options * glopts)
     // glopts->sblimit = pick_table ( glopts );
     /* MFC FIX this up */
     glopts->sblimit = table_sblimit[glopts->tablenum];
-    // fprintf(stderr,"twolame_encode_init: using tablenum %i with sblimit %i\n",glopts->tablenum,
+    // printf("twolame_encode_init: using tablenum %i with sblimit %i\n",glopts->tablenum,
     // glopts->sblimit);
 
     if (glopts->mode == TWOLAME_JOINT_STEREO)
@@ -229,28 +230,28 @@ int twolame_encode_init(twolame_options * glopts)
 #ifdef DUMPTABLES
     {
         int tablenumber, j, sblimit, sb;
-        fprintf(stderr, "Tables B.21,b,c,d from ISO11172 and the LSF table from ISO13818\n");
+        printf("Tables B.21,b,c,d from ISO11172 and the LSF table from ISO13818\n");
         for (tablenumber = 0; tablenumber < NUMTABLES; tablenumber++) {
             /* Print Table Header */
-            fprintf(stderr, "Tablenum %i\n", tablenumber);
-            fprintf(stderr, "sb nbal ");
+            printf("Tablenum %i\n", tablenumber);
+            printf("sb nbal ");
             for (j = 0; j < 16; j++)
-                fprintf(stderr, "%6i ", j);
-            fprintf(stderr, "\n");
-            fprintf(stderr,
+                printf("%6i ", j);
+            printf("\n");
+            printf(
                     "-----------------------------------------------------------------------------------------------------------------------\n");
 
             sblimit = table_sblimit[tablenumber];
             for (sb = 0; sb < SBLIMIT; sb++) {
                 int thisline = line[tablenumber][sb];
-                fprintf(stderr, "%2i %4i ", sb, nbal[thisline]);
+                printf("%2i %4i ", sb, nbal[thisline]);
                 if (nbal[thisline] != 0) {
                     for (j = 0; j < (1 << nbal[thisline]); j++)
-                        fprintf(stderr, "%6i ", steps[step_index[thisline][j]]);
+                        printf("%6i ", steps[step_index[thisline][j]]);
                 }
-                fprintf(stderr, "\n");
+                printf("\n");
             }
-            fprintf(stderr, "\n");
+            printf("\n");
         }
     }
 #endif
@@ -322,7 +323,7 @@ void twolame_scalefactor_calc(FLOAT sb_sample[][3][SCALE_BLOCK][SBLIMIT],
                    but since it involves a log it isn't really speedy. Items in the scalefactor[]
                    table are calculated by: the n'th entry = 2 / (cuberoot(2) ^ n) And so using a
                    bit of maths you get: index = (int)(log(2.0/cur_max) / LNCUBEROOTTWO);
-                   fprintf(stderr,"cur_max %.14lf scalefactorindex %i multiple %.14lf\n",cur_max,
+                   printf("cur_max %.14lf scalefactorindex %i multiple %.14lf\n",cur_max,
                    scale_fac, scalefactor[scale_fac]); */
             }
         }
@@ -608,7 +609,7 @@ void twolame_subband_quantization(twolame_options * glopts,
                            result in a scaled sample being > 1.0 This error shouldn't ever happen
                            *unless* something went wrong in scalefactor calc
 
-                           if (mod (d) > 1.0) fprintf (stderr, "Not scaled properly %d %d %d %d\n",
+                           if (mod (d) > 1.0) printf ("Not scaled properly %d %d %d %d\n",
                            ch, gr, j, sb); */
 
                         {
@@ -1003,7 +1004,7 @@ static void vbr_maxmnr(FLOAT mnr[2][SBLIMIT], char used[2][SBLIMIT], int sblimit
             if (mnr[ch][sb] < vbrlevel) {
                 *min_sb = sb;
                 *min_ch = ch;
-                // fprintf(stderr,".");
+                // printf(".");
                 // fflush(stderr);
                 return;
             }
@@ -1017,7 +1018,7 @@ static void vbr_maxmnr(FLOAT mnr[2][SBLIMIT], char used[2][SBLIMIT], int sblimit
                 *min_sb = sb;
                 *min_ch = ch;
             }
-    // fprintf(stderr,"Min sb: %i\n",*min_sb);
+    // printf("Min sb: %i\n",*min_sb);
 }
 
 

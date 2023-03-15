@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -47,7 +48,6 @@
 #include "util.h"
 
 #include "bitbuffer_inline.h"
-
 
 /*
   twolame_init
@@ -654,7 +654,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
         unsigned char *frame_ptr = bs->buf + (initial_bits >> 3);
         twolame_crc_writeheader(frame_ptr, glopts->num_crc_bits);
     }
-    // fprintf(stderr,"Frame size: %li\n\n",frameBits/8);
+    // printf("Frame size: %li\n\n",frameBits/8);
 
     return frameBits / 8;
 }

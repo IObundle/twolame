@@ -22,7 +22,8 @@
  */
 
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -321,7 +322,7 @@ static void psycho_1_noise_label(psycho_1_mem * mem, int *noise, FLOAT energy[FF
         if (sum <= DBMIN)
             centre = (cbound[i + 1] + cbound[i]) / 2;
         else {
-            /* fprintf(stderr, "%i [%f %f] -", count++,weight/pow(10.0,0.1*sum),
+            /* printf("%i [%f %f] -", count++,weight/pow(10.0,0.1*sum),
                weight*pow(10.0,-0.1*sum)); */
             index = weight * pow(10.0, -0.1 * sum);
             centre = cbound[i] + (int) (index * (FLOAT) (cbound[i + 1] - cbound[i]));
@@ -536,21 +537,21 @@ static void psycho_1_smr(FLOAT ltmin[SBLIMIT], FLOAT spike[SBLIMIT], FLOAT scale
 static void psycho_1_dump(mask power[HAN_SIZE], int *tone, int *noise) {
   int t;
 
-  fprintf(stderr,"1 Ton: ");
+  printf("1 Ton: ");
   t=*tone;
   while (t!=LAST && t!=STOP) {
-    fprintf(stderr,"[%i] %3.0f ",t, power[t].x);
+    printf("[%i] %3.0f ",t, power[t].x);
     t = power[t].next;
   }
-  fprintf(stderr,"\n");
+  printf("\n");
 
-  fprintf(stderr,"1 Nos: ");
+  printf("1 Nos: ");
   t=*noise;
   while (t!=LAST && t!=STOP) {
-    fprintf(stderr,"[%i] %3.0f ",t, power[t].x);
+    printf("[%i] %3.0f ",t, power[t].x);
     t = power[t].next;
   }
-  fprintf(stderr,"\n");
+  printf("\n");
 }
 */
 

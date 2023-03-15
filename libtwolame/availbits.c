@@ -3,6 +3,7 @@
  *
  *  Copyright (C) 2001-2004 Michael Cheng
  *  Copyright (C) 2004-2018 The TwoLAME Project
+ *  Copyright (C) 2023 IObundle, Lda
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -21,12 +22,11 @@
  */
 
 
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "twolame.h"
 #include "common.h"
 #include "availbits.h"
-
 
 
 /* function returns the number of available bits */
@@ -41,7 +41,7 @@ int twolame_available_bits(twolame_options * glopts)
     average = (1152.0 / ((FLOAT) glopts->samplerate_out / 1000.0))
               * ((FLOAT) glopts->bitrate / 8.0);
 
-    // fprintf(stderr,"availbits says: sampling freq is %i. version %i. bitrateindex %i slots
+    // printf("availbits says: sampling freq is %i. version %i. bitrateindex %i slots
     // %f\n",header->sampling_frequency, header->version, header->bitrate_index, average);
 
     whole = (int) average;

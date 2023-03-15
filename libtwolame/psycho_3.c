@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
