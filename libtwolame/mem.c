@@ -22,9 +22,9 @@
  */
 
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include "mem.h"
-#include "iob-uart.h"
 
 /*******************************************************************************
 *

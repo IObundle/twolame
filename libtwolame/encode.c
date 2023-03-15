@@ -22,7 +22,8 @@
  */
 
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -34,8 +35,6 @@
 #include "util.h"
 
 #include "bitbuffer_inline.h"
-
-#include "iob-uart.h"
 
 
 static const FLOAT multiple[64] = {
@@ -217,7 +216,7 @@ int twolame_encode_init(twolame_options * glopts)
     // glopts->sblimit = pick_table ( glopts );
     /* MFC FIX this up */
     glopts->sblimit = table_sblimit[glopts->tablenum];
-    // uart_puts("twolame_encode_init: using tablenum %i with sblimit %i\n",glopts->tablenum,
+    // printf("twolame_encode_init: using tablenum %i with sblimit %i\n",glopts->tablenum,
     // glopts->sblimit);
 
     if (glopts->mode == TWOLAME_JOINT_STEREO)
@@ -231,28 +230,28 @@ int twolame_encode_init(twolame_options * glopts)
 #ifdef DUMPTABLES
     {
         int tablenumber, j, sblimit, sb;
-        uart_puts( "Tables B.21,b,c,d from ISO11172 and the LSF table from ISO13818\n");
+        printf( "Tables B.21,b,c,d from ISO11172 and the LSF table from ISO13818\n");
         for (tablenumber = 0; tablenumber < NUMTABLES; tablenumber++) {
             /* Print Table Header */
-            uart_puts( "Tablenum %i\n", tablenumber);
-            uart_puts( "sb nbal ");
+            printf( "Tablenum %i\n", tablenumber);
+            printf( "sb nbal ");
             for (j = 0; j < 16; j++)
-                uart_puts( "%6i ", j);
-            uart_puts( "\n");
-            uart_puts(
+                printf( "%6i ", j);
+            printf( "\n");
+            printf(
                     "-----------------------------------------------------------------------------------------------------------------------\n");
 
             sblimit = table_sblimit[tablenumber];
             for (sb = 0; sb < SBLIMIT; sb++) {
                 int thisline = line[tablenumber][sb];
-                uart_puts( "%2i %4i ", sb, nbal[thisline]);
+                printf( "%2i %4i ", sb, nbal[thisline]);
                 if (nbal[thisline] != 0) {
                     for (j = 0; j < (1 << nbal[thisline]); j++)
-                        uart_puts( "%6i ", steps[step_index[thisline][j]]);
+                        printf( "%6i ", steps[step_index[thisline][j]]);
                 }
-                uart_puts( "\n");
+                printf( "\n");
             }
-            uart_puts( "\n");
+            printf( "\n");
         }
     }
 #endif
@@ -324,7 +323,7 @@ void twolame_scalefactor_calc(FLOAT sb_sample[][3][SCALE_BLOCK][SBLIMIT],
                    but since it involves a log it isn't really speedy. Items in the scalefactor[]
                    table are calculated by: the n'th entry = 2 / (cuberoot(2) ^ n) And so using a
                    bit of maths you get: index = (int)(log(2.0/cur_max) / LNCUBEROOTTWO);
-                   uart_puts("cur_max %.14lf scalefactorindex %i multiple %.14lf\n",cur_max,
+                   printf("cur_max %.14lf scalefactorindex %i multiple %.14lf\n",cur_max,
                    scale_fac, scalefactor[scale_fac]); */
             }
         }
@@ -610,7 +609,7 @@ void twolame_subband_quantization(twolame_options * glopts,
                            result in a scaled sample being > 1.0 This error shouldn't ever happen
                            *unless* something went wrong in scalefactor calc
 
-                           if (mod (d) > 1.0) uart_puts ( "Not scaled properly %d %d %d %d\n",
+                           if (mod (d) > 1.0) printf ( "Not scaled properly %d %d %d %d\n",
                            ch, gr, j, sb); */
 
                         {
@@ -971,7 +970,7 @@ void twolame_main_bit_allocation(twolame_options * glopts,
             if ((glopts->vbr_frame_count++ % 1000) == 0) {
                 for (i = 1; i < 15; i++)
                     printf( "%4i ", glopts->vbrstats[i]);
-                uart_puts( "\n");
+                printf( "\n");
             }
 
             /* Print out *every* frames bitrateindex, bits required, and bits available at this
@@ -1006,7 +1005,7 @@ static void vbr_maxmnr(FLOAT mnr[2][SBLIMIT], char used[2][SBLIMIT], int sblimit
             if (mnr[ch][sb] < vbrlevel) {
                 *min_sb = sb;
                 *min_ch = ch;
-                // uart_puts(".");
+                // printf(".");
                 // fflush(stderr);
                 return;
             }
@@ -1020,7 +1019,7 @@ static void vbr_maxmnr(FLOAT mnr[2][SBLIMIT], char used[2][SBLIMIT], int sblimit
                 *min_sb = sb;
                 *min_ch = ch;
             }
-    // uart_puts("Min sb: %i\n",*min_sb);
+    // printf("Min sb: %i\n",*min_sb);
 }
 
 

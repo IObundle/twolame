@@ -22,7 +22,8 @@
  */
 
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -31,8 +32,6 @@
 #include "mem.h"
 #include "fft.h"
 #include "psycho_1.h"
-
-#include "iob-uart.h"
 
 /**********************************************************************
 
@@ -53,11 +52,11 @@ static int *psycho_1_read_cbound(int lay, int freq, int *crit_band)
     int i, k;
 
     if ((lay < 1) || (lay > 2)) {
-        uart_puts( "Internal error (read_cbound())\n");
+        printf( "Internal error (read_cbound())\n");
         return (NULL);
     }
     if ((freq < 0) || (freq > 6) || (freq == 3)) {
-        uart_puts( "Internal error (read_cbound())\n");
+        printf( "Internal error (read_cbound())\n");
         return (NULL);
     }
 
@@ -68,7 +67,7 @@ static int *psycho_1_read_cbound(int lay, int freq, int *crit_band)
         if (k != 0) {
             cbound[i] = k;
         } else {
-            uart_puts( "Internal error (read_cbound())\n");
+            printf( "Internal error (read_cbound())\n");
             return (NULL);
         }
     }
@@ -84,7 +83,7 @@ static void psycho_1_read_freq_band(g_ptr * ltg, int lay, int freq, int *sub_siz
     int i, k;
 
     if ((freq < 0) || (freq > 6) || (freq == 3)) {
-        uart_puts( "Internal error (read_freq_band())\n");
+        printf( "Internal error (read_freq_band())\n");
         return;
     }
 
@@ -102,7 +101,7 @@ static void psycho_1_read_freq_band(g_ptr * ltg, int lay, int freq, int *sub_siz
             (*ltg)[i].bark = SecondFreqSubband[freq][i - 1].bark;
             (*ltg)[i].hear = SecondFreqSubband[freq][i - 1].hear;
         } else {
-            uart_puts( "Internal error (read_freq_band())\n");
+            printf( "Internal error (read_freq_band())\n");
             return;
         }
     }
@@ -323,7 +322,7 @@ static void psycho_1_noise_label(psycho_1_mem * mem, int *noise, FLOAT energy[FF
         if (sum <= DBMIN)
             centre = (cbound[i + 1] + cbound[i]) / 2;
         else {
-            /* uart_puts( "%i [%f %f] -", count++,weight/pow(10.0,0.1*sum),
+            /* printf( "%i [%f %f] -", count++,weight/pow(10.0,0.1*sum),
                weight*pow(10.0,-0.1*sum)); */
             index = weight * pow(10.0, -0.1 * sum);
             centre = cbound[i] + (int) (index * (FLOAT) (cbound[i + 1] - cbound[i]));
@@ -538,21 +537,21 @@ static void psycho_1_smr(FLOAT ltmin[SBLIMIT], FLOAT spike[SBLIMIT], FLOAT scale
 static void psycho_1_dump(mask power[HAN_SIZE], int *tone, int *noise) {
   int t;
 
-  uart_puts("1 Ton: ");
+  printf("1 Ton: ");
   t=*tone;
   while (t!=LAST && t!=STOP) {
-    uart_puts("[%i] %3.0f ",t, power[t].x);
+    printf("[%i] %3.0f ",t, power[t].x);
     t = power[t].next;
   }
-  uart_puts("\n");
+  printf("\n");
 
-  uart_puts("1 Nos: ");
+  printf("1 Nos: ");
   t=*noise;
   while (t!=LAST && t!=STOP) {
-    uart_puts("[%i] %3.0f ",t, power[t].x);
+    printf("[%i] %3.0f ",t, power[t].x);
     t = power[t].next;
   }
-  uart_puts("\n");
+  printf("\n");
 }
 */
 

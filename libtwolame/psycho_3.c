@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -32,8 +33,6 @@
 #include "fft.h"
 #include "ath.h"
 #include "psycho_3.h"
-
-#include "iob-uart.h"
 
 /* This is a reimplementation of psy model 1 using the ISO11172 standard.
    I found the original dist10 code (which is full of pointers) to be
@@ -508,19 +507,19 @@ static psycho_3_mem *twolame_psycho_3_init(twolame_options * glopts)
 static void psycho_3_dump(int *tonelabel, FLOAT * Xtm, int *noiselabel, FLOAT * Xnm)
 {
     int i;
-    uart_puts( "3 Ton:");
+    printf( "3 Ton:");
     for (i = 1; i < HAN_SIZE; i++) {
         if (tonelabel[i] == TONE)
             printf( "[%i] %3.0f ", i, Xtm[i]);
     }
-    uart_puts( "\n");
+    printf( "\n");
 
-    uart_puts( "3 Nos:");
+    printf( "3 Nos:");
     for (i = 1; i < HAN_SIZE; i++) {
         if (noiselabel[i] == NOISE)
             printf( "[%i] %3.0f ", i, Xnm[i]);
     }
-    uart_puts( "\n");
+    printf( "\n");
 }
 
 

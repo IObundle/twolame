@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -47,8 +48,6 @@
 #include "util.h"
 
 #include "bitbuffer_inline.h"
-
-#include "iob-uart.h"
 
 /*
   twolame_init
@@ -190,19 +189,19 @@ int twolame_init_params(twolame_options * glopts)
 {
 
     if (glopts->twolame_init) {
-        uart_puts( "Already called twolame_init_params() once.\n");
+        printf( "Already called twolame_init_params() once.\n");
         return 1;
     }
     // Check the number of channels
     if (glopts->num_channels_in != 1 && glopts->num_channels_in != 2) {
         if (glopts->num_channels_in == 0) {
             /* this error is due to the caller frontend */
-            uart_puts(
+            printf(
                     "twolame_init_params(): must specify number of input channels using twolame_set_num_channels().\n");
         }
         else {
             /* this error is due to the user feeding a wrong file */
-            uart_puts(
+            printf(
                     "Error: twolame cannot encode files with more than 2 channels.\n");
         }
         return -1;
@@ -317,7 +316,7 @@ int twolame_init_params(twolame_options * glopts)
     /* Can't do DAB and energylevel extensions at the same time Because both of them think they're
        the only ones inserting information into the ancillary section of the frame */
     if (glopts->do_dab && glopts->do_energy_levels) {
-        uart_puts( "Error: Can't do DAB and Energy Levels at the same time\n");
+        printf( "Error: Can't do DAB and Energy Levels at the same time\n");
         return -1;
     }
 
@@ -348,7 +347,7 @@ int twolame_init_params(twolame_options * glopts)
      * bits_for_nonoise in vbr mode
      */
     if (glopts->vbr && glopts->mode == TWOLAME_JOINT_STEREO) {
-        uart_puts( "Warning: Can't do Joint Stereo with VBR, switching to normal stereo.\n");
+        printf( "Warning: Can't do Joint Stereo with VBR, switching to normal stereo.\n");
 
         // force stereo mode
         twolame_set_mode(glopts, TWOLAME_STEREO);
@@ -356,7 +355,7 @@ int twolame_init_params(twolame_options * glopts)
 
     /* Can't do padding and VBR at same time */
     if (glopts->vbr && glopts->padding == TRUE) {
-        uart_puts( "Error: Can't do padding and VBR at same time\n");
+        printf( "Error: Can't do padding and VBR at same time\n");
         return -1;
     }
 
@@ -386,7 +385,7 @@ int twolame_init_params(twolame_options * glopts)
     }
     // Check input samplerate is same as output samplerate
     if (glopts->samplerate_out != glopts->samplerate_in) {
-        uart_puts(
+        printf(
                 "twolame_init_params(): sorry, twolame doesn't support resampling (yet).\n");
         return -1;
     }
@@ -498,7 +497,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
     short sam[2][1056];
 
     if (!glopts->twolame_init) {
-        uart_puts( "Please call twolame_init_params() before starting encoding.\n");
+        printf( "Please call twolame_init_params() before starting encoding.\n");
         return -1;
     }
     // Scale and mix the input buffer
@@ -522,9 +521,9 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
         /* Trying to reserve more than 60% of the frame. 0.6 is arbitrary. but since most
            applications probably only want to reserve a few bytes, this seems fine. Typical frame
            size is about 800bytes */
-        uart_puts(
+        printf(
                 "You're trying to reserve more than 60%% of the mpeg frame for ancillary data\n");
-        uart_puts( "This is probably an error. But I'll keep going anyway...\n");
+        printf( "This is probably an error. But I'll keep going anyway...\n");
     }
 
     adb -= glopts->num_ancillary_bits;
@@ -645,7 +644,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
     if (frameBits % 8) {        /* a program failure */
         printf( "Sent %ld bits = %ld slots plus %ld\n", frameBits, frameBits / 8,
                 frameBits % 8);
-        uart_puts( "If you are reading this, the program is broken\n");
+        printf( "If you are reading this, the program is broken\n");
         printf( "email %s with the command line arguments and other info\n",
                 PACKAGE_BUGREPORT);
         return -1;
@@ -659,7 +658,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
         unsigned char *frame_ptr = bs->buf + (initial_bits >> 3);
         twolame_crc_writeheader(frame_ptr, glopts->num_crc_bits);
     }
-    // uart_puts("Frame size: %li\n\n",frameBits/8);
+    // printf("Frame size: %li\n\n",frameBits/8);
 
     return frameBits / 8;
 }

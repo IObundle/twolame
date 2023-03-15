@@ -22,7 +22,8 @@
  */
 
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -32,8 +33,6 @@
 #include "mem.h"
 #include "fft.h"
 #include "psycho_2.h"
-
-#include "iob-uart.h"
 
 /* The static variables "r", "phi_sav", "new", "old" and "oldest" have      */
 /* to be remembered for the unpredictability measure.  For "r" and          */
@@ -65,7 +64,7 @@ int table;
 #include "psycho_2_absthr.h"
 
     if ((table < 0) || (table > 3)) {
-        uart_puts( "internal error: wrong table number");
+        printf( "internal error: wrong table number");
         return;
     }
 
@@ -239,8 +238,8 @@ psycho_2_mem *twolame_psycho_2_init(twolame_options * glopts, int sfreq)
     if (glopts->verbosity > 5) {
         /* Dump All the Values to stderr and exit */
         int wlow, whigh = 0;
-        uart_puts( "psy model 2 init\n");
-        uart_puts( "index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
+        printf( "psy model 2 init\n");
+        printf( "index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
         for (i = 0; i < CBANDS; i++) {
             wlow = whigh + 1;
             whigh = wlow + numlines[i] - 1;

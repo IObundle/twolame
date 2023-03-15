@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -33,8 +34,6 @@
 #include "mem.h"
 #include "util.h"
 #include "energy.h"
-
-#include "iob-uart.h"
 
 /*********************************************/
 
@@ -525,7 +524,7 @@ int twolame_set_DAB_scf_crc(twolame_options * glopts,
     }
     else
     {
-        uart_puts( "Invalid size of DAB scf-crc field\n");
+        printf( "Invalid size of DAB scf-crc field\n");
         return (-1);
     }
     return (0);

@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -32,8 +33,6 @@
 #include "fft.h"
 #include "ath.h"
 #include "psycho_4.h"
-
-#include "iob-uart.h"
 
 /****************************************************************
 PSYCHO_4 by MFC Feb 2003
@@ -224,7 +223,7 @@ static psycho_4_mem *twolame_psycho_4_init(twolame_options * glopts, int sfreq)
            with index 0 corresponding to (sampling freq)/1024. When in doubt, i'm going to assume
            that the dist10 code is wrong. MFC Feb2003 */
         ath[i] = twolame_ath_energy(freq, glopts->athlevel);
-        // uart_puts("%.2f ",ath[i]);
+        // printf("%.2f ",ath[i]);
     }
 
 
@@ -280,8 +279,8 @@ static psycho_4_mem *twolame_psycho_4_init(twolame_options * glopts, int sfreq)
         /* Dump All the Values to STDERR */
         int wlow, whigh = 0;
         int ntot = 0;
-        uart_puts( "psy model 4 init\n");
-        uart_puts( "index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
+        printf( "psy model 4 init\n");
+        printf( "index \tnlines \twlow \twhigh \tbval \tminval \ttmn\n");
         for (i = 0; i < CBANDS; i++)
             if (numlines[i] != 0) {
                 wlow = whigh + 1;

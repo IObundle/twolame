@@ -21,7 +21,8 @@
  *
  */
 
-#include <stdio.h>
+//#include <stdio.h>
+#include "printf.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -30,8 +31,6 @@
 #include "twolame.h"
 #include "common.h"
 #include "util.h"
-
-#include "iob-uart.h"
 
 
 // Return string containg version number
@@ -189,21 +188,21 @@ void twolame_print_config(twolame_options * glopts)
         printf("Encoding as %dHz, ", twolame_get_out_samplerate(glopts));
         printf("%d kbps, ", twolame_get_bitrate(glopts));
         if (twolame_get_VBR(glopts))
-            uart_puts("VBR, ");
+            printf("VBR, ");
         else
-            uart_puts("CBR, ");
+            printf("CBR, ");
         printf("%s Layer II\n", twolame_get_version_name(glopts));
 
     } else {
 
-        uart_puts("---------------------------------------------------------\n");
+        printf("---------------------------------------------------------\n");
         printf("LibTwoLame %s (%s)\n", get_twolame_version(), get_twolame_url());
         printf("Input : %d Hz, %d channels\n",
                 twolame_get_in_samplerate(glopts), twolame_get_num_channels(glopts));
         printf("Output: %d Hz, %s\n",
                 twolame_get_out_samplerate(glopts), twolame_get_mode_name(glopts));
         if (twolame_get_VBR(glopts))
-            uart_puts("VBR ");
+            printf("VBR ");
         else
             printf("%d kbps CBR ", twolame_get_bitrate(glopts));
         printf("%s Layer II ", twolame_get_version_name(glopts));
@@ -240,13 +239,13 @@ void twolame_print_config(twolame_options * glopts)
                 printf(" - Scaling right channel by %f\n", twolame_get_scale_right(glopts));
 
             // if (glopts->num_channels_in == 2 && glopts->num_channels_out == 1 ) {
-            // uart_puts(fd, " - Downmixing from stereo to mono.\n");
+            // printf(fd, " - Downmixing from stereo to mono.\n");
             // } else if (glopts->num_channels_in == 1 && glopts->num_channels_out == 2 ) {
-            // uart_puts(fd, " - Upmixing from mono to stereo.\n");
+            // printf(fd, " - Upmixing from mono to stereo.\n");
             // }
         }
 
-        uart_puts("---------------------------------------------------------\n");
+        printf("---------------------------------------------------------\n");
 
     }
 }

@@ -22,13 +22,11 @@
  */
 
 
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "twolame.h"
 #include "common.h"
 #include "availbits.h"
-
-#include "iob-uart.h"
 
 
 /* function returns the number of available bits */
@@ -43,7 +41,7 @@ int twolame_available_bits(twolame_options * glopts)
     average = (1152.0 / ((FLOAT) glopts->samplerate_out / 1000.0))
               * ((FLOAT) glopts->bitrate / 8.0);
 
-    // uart_puts("availbits says: sampling freq is %i. version %i. bitrateindex %i slots
+    // printf("availbits says: sampling freq is %i. version %i. bitrateindex %i slots
     // %f\n",header->sampling_frequency, header->version, header->bitrate_index, average);
 
     whole = (int) average;
