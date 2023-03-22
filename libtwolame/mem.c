@@ -34,7 +34,7 @@
 
 void *twolame_malloc(size_t size, int line, char *file)
 {
-    void *ptr = (void *) malloc(size* 1);
+    void *ptr = (void *) calloc(size, 1);
 
     if (ptr == NULL) {
         printf("Unable to allocate %d bytes at line %d of %s\n", (int) size, line, file);
