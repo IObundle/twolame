@@ -49,6 +49,13 @@
 
 #include "bitbuffer_inline.h"
 
+#include "iob-timer.h"
+
+//profiling
+unsigned int start_elapse_time;
+unsigned int end_elapse_time;
+unsigned int elapsed_time[50];
+
 /*
   twolame_init
   Create a set of encoding options and return a pointer to this structure
@@ -497,10 +504,18 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
         printf("Please call twolame_init_params() before starting encoding.\n");
         return -1;
     }
+
+    int index_timer=1;
+
+    //////1
+    start_elapse_time = timer_time_ms();
     // Scale and mix the input buffer
     scale_and_mix_samples(glopts);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
-
+    //////2
+    start_elapse_time = timer_time_ms();
     // Clear the saved audio buffer
     memset((char *) sam, 0, sizeof(sam));
 
@@ -509,8 +524,14 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
 
     // Store the number of bits initially in the bit buffer
     initial_bits = twolame_buffer_sstell(bs);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
+    //////3
+    start_elapse_time = timer_time_ms();
     adb = twolame_available_bits(glopts);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
     /* allow the user to reserve some space at the end of the frame This will however leave fewer
        bits for the audio. Need to do a sanity check here to see that there are *some* bits left. */
@@ -524,7 +545,8 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
 
     adb -= glopts->num_ancillary_bits;
 
-
+    //////4
+    start_elapse_time = timer_time_ms();
     /* The DAB scf-crc calc is done below. The frontend will have to keep the previous frame in
        memory. As of 09May 2014 all that needs to be done is for the frontend to buffer one frame in
        memory and call twolame_set_DAB_scf_crc */
@@ -539,15 +561,31 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
                                                   &glopts->buffer[ch][gr * 12 * 32 + 32 * bl], ch,
                                                   &(*glopts->sb_sample)[ch][gr][bl][0]);
     }
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
+    //////5
+    start_elapse_time = timer_time_ms();
     twolame_scalefactor_calc(*glopts->sb_sample, glopts->scalar, nch, glopts->sblimit);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+    //////6
+    start_elapse_time = timer_time_ms();
     twolame_find_sf_max(glopts, glopts->scalar, glopts->max_sc);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+    //////7
+    start_elapse_time = timer_time_ms();
     if (glopts->mode == TWOLAME_JOINT_STEREO) {
         // this way we calculate more mono than we need but it is cheap
         twolame_combine_lr(*glopts->sb_sample, *glopts->j_sample, glopts->sblimit);
         twolame_scalefactor_calc(glopts->j_sample, &glopts->j_scale, 1, glopts->sblimit);
     }
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
+    //////8
+    start_elapse_time = timer_time_ms();
     if ((glopts->quickmode == TRUE) && (++glopts->psycount % glopts->quickcount != 0)) {
         /* We're using quick mode, so we're only calculating the model every 'quickcount' frames.
            Otherwise, just copy the old ones across */
@@ -593,34 +631,73 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
             }
         }
     }
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
-
+    //////9
+    start_elapse_time = timer_time_ms();
     twolame_sf_transmission_pattern(glopts, glopts->scalar, glopts->scfsi);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+    //////10
+    start_elapse_time = timer_time_ms();
     twolame_main_bit_allocation(glopts, glopts->smr, glopts->scfsi, glopts->bit_alloc, &adb);
-
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+    //////11
+    start_elapse_time = timer_time_ms();
     twolame_write_header(glopts, bs);
-
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+    //////12
+    start_elapse_time = timer_time_ms();
     // Leave space for 2 bytes of CRC to be filled in later
     if (glopts->error_protection)
         buffer_putbits(bs, 0, 16);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
+    //////13
+    start_elapse_time = timer_time_ms();
     twolame_write_bit_alloc(glopts, glopts->bit_alloc, bs);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+    //////14
+    start_elapse_time = timer_time_ms();
     twolame_write_scalefactors(glopts, glopts->bit_alloc, glopts->scfsi, glopts->scalar, bs);
-
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+    //////15
+    start_elapse_time = timer_time_ms();
     twolame_subband_quantization(glopts, glopts->scalar, *glopts->sb_sample, glopts->j_scale,
                                  *glopts->j_sample, glopts->bit_alloc, *glopts->subband);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+    //////16
+    start_elapse_time = timer_time_ms();
     twolame_write_samples(glopts, *glopts->subband, glopts->bit_alloc, bs);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
+    //////17
+    start_elapse_time = timer_time_ms();
     // If not all the bits were used, write out a stack of zeros
     for (i = 0; i < adb; i++)
         buffer_put1bit(bs, 0);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
-
+    //////18
+    start_elapse_time = timer_time_ms();
     /* pad the current frame when needed */
     if (glopts->header.padding)
         // input file
         buffer_putbits(bs, 0, 8);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
+    //////19
+    start_elapse_time = timer_time_ms();
     if (glopts->do_dab) {
         // Do the CRC calc for DAB stuff if required.
         // It will be up to the frontend to insert it into the end of the
@@ -630,11 +707,19 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
                                  &glopts->dab_crc[i], i);
         }
     }
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+
+    //////20
+    start_elapse_time = timer_time_ms();
     // Allocate space for the reserved ancillary bits
     for (i = 0; i < glopts->num_ancillary_bits; i++)
         buffer_put1bit(bs, 0);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
-
+    //////21
+    start_elapse_time = timer_time_ms();
     // Calulate the number of bits in this frame
     frameBits = twolame_buffer_sstell(bs) - initial_bits;
     if (frameBits % 8) {        /* a program failure */
@@ -645,15 +730,26 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
                 PACKAGE_BUGREPORT);
         return -1;
     }
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
+
+    //////22
+    start_elapse_time = timer_time_ms();
     // Store the energy levels at the end of the frame
     if (glopts->do_energy_levels)
         twolame_do_energy_levels(glopts, bs);
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
 
+    //////23
+    start_elapse_time = timer_time_ms();
     // MEANX: Recompute checksum from bitstream
     if (glopts->error_protection) {
         unsigned char *frame_ptr = bs->buf + (initial_bits >> 3);
         twolame_crc_writeheader(frame_ptr, glopts->num_crc_bits);
     }
+    end_elapse_time = timer_time_ms();
+    elapsed_time [index_timer++] += end_elapse_time - start_elapse_time;
     // printf("Frame size: %li\n\n",frameBits/8);
 
     return frameBits / 8;
@@ -749,6 +845,8 @@ int twolame_encode_buffer_interleaved(twolame_options * glopts,
     // samples/1152 * sizeof(frame) < mp2buffer_size
     mybs = twolame_buffer_init(mp2buffer, mp2buffer_size);
 
+    //printf("glopts->psymodel = %d\n", glopts->psymodel);
+
     if (mybs != NULL) {
         // Use up all the samples in in_buffer
         while (num_samples) {
@@ -785,6 +883,8 @@ int twolame_encode_buffer_interleaved(twolame_options * glopts,
                 glopts->samples_in_buffer -= TWOLAME_SAMPLES_PER_FRAME;
             }
         }
+
+        for (int i = 1; i < 24; i++) printf(">>>>> twolame_function number %d took %d ms\n", i, (unsigned int) elapsed_time[i]);
 
         // free up the bit stream buffer structure
         twolame_buffer_deinit(&mybs);
