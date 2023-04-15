@@ -39,7 +39,7 @@
 ****************************************************************************************/
 
 #ifndef FLOAT
-#define            FLOAT                    double
+#define            FLOAT                    float
 #endif
 
 #define            NULL_CHAR                '\0'
