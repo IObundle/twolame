@@ -40,6 +40,8 @@
 
 #ifndef FLOAT
 #define            FLOAT                    float
+//comment when using float
+//#define            FLOAT_DOUBLE
 #endif
 
 #define            NULL_CHAR                '\0'
