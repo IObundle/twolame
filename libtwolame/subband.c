@@ -38,6 +38,7 @@ static void create_dct_matrix(FLOAT filter[16][32])
 {
     register int i, k;
 
+#ifdef FLOAT_DOUBLE
     for (i = 0; i < 16; i++)
         for (k = 0; k < 32; k++) {
             if ((filter[i][k] = 1e9 * cos((FLOAT) ((2 * i + 1) * k * PI64))) >= 0)
@@ -46,7 +47,18 @@ static void create_dct_matrix(FLOAT filter[16][32])
                 modf(filter[i][k] - 0.5, &filter[i][k]);
             filter[i][k] *= 1e-9;
         }
+#else
+    for (i = 0; i < 16; i++)
+        for (k = 0; k < 32; k++) {
+            if ((filter[i][k] = 1e9 * cos((FLOAT) ((2 * i + 1) * k * PI64))) >= 0)
+                modff(filter[i][k] + 0.5, &filter[i][k]);
+            else
+                modff(filter[i][k] - 0.5, &filter[i][k]);
+            filter[i][k] *= 1e-9;
+        }
+#endif
 }
+
 
 int twolame_init_subband(subband_mem * smem)
 {
