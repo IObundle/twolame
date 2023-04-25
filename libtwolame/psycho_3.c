@@ -392,46 +392,45 @@ static void psycho_3_threshold(psycho_3_mem * mem, FLOAT * LTg, int *tonelabel, 
     /* Loop over the entire spectrum and find every noise and tone And then with each noise/tone
        work out how it masks the spectral lines around it */
     for (k = 1; k < HBLKSIZE; k++) {
-        /* Find every tone */
-        if (tonelabel[k] == TONE) {
-            for (j = 0; j < SUBSIZE; j++) {
-                /* figure out how it masks the levels around it */
-                FLOAT dz = bark[freq_subset[j]] - bark[k];
-                if (dz >= -3.0 && dz < 8.0) {
-                    FLOAT vf;
-                    FLOAT av = -1.525 - 0.275 * bark[k] - 4.5 + Xtm[k];
-                    /* masking function for lower & upper slopes */
-                    if (dz < -1)
-                        vf = 17 * (dz + 1) - (0.4 * Xtm[k] + 6);
-                    else if (dz < 0)
-                        vf = (0.4 * Xtm[k] + 6) * dz;
-                    else if (dz < 1)
-                        vf = (-17 * dz);
-                    else
-                        vf = -(dz - 1) * (17 - 0.15 * Xtm[k]) - 17;
-                    LTtm[j] = psycho_3_add_db(mem, LTtm[j], av + vf);
-                }
-            }
-        }
 
-        /* find every noise label */
-        if (noiselabel[k] == NOISE) {
+        /* Find every tone and every noise label */
+        if (tonelabel[k] == TONE || noiselabel[k] == NOISE) {
+
+            FLOAT vf;
+            FLOAT av_tone = -1.525 - 0.275 * bark[k] - 4.5 + Xtm[k];
+            FLOAT av_noise = -1.525 - 0.175 * bark[k] - 0.5 + Xnm[k];
+
             for (j = 0; j < SUBSIZE; j++) {
+                
                 /* figure out how it masks the levels around it */
                 FLOAT dz = bark[freq_subset[j]] - bark[k];
                 if (dz >= -3.0 && dz < 8.0) {
-                    FLOAT vf;
-                    FLOAT av = -1.525 - 0.175 * bark[k] - 0.5 + Xnm[k];
+
                     /* masking function for lower & upper slopes */
-                    if (dz < -1)
-                        vf = 17 * (dz + 1) - (0.4 * Xnm[k] + 6);
-                    else if (dz < 0)
-                        vf = (0.4 * Xnm[k] + 6) * dz;
-                    else if (dz < 1)
-                        vf = (-17 * dz);
-                    else
-                        vf = -(dz - 1) * (17 - 0.15 * Xnm[k]) - 17;
-                    LTnm[j] = psycho_3_add_db(mem, LTnm[j], av + vf);
+                    if (tonelabel[k] == TONE) {
+                        if (dz < -1)
+                            vf = 17 * (dz + 1) - (0.4 * Xtm[k] + 6);
+                        else if (dz < 0)
+                            vf = (0.4 * Xtm[k] + 6) * dz;
+                        else if (dz < 1)
+                            vf = (-17 * dz);
+                        else
+                            vf = -(dz - 1) * (17 - 0.15 * Xtm[k]) - 17;
+                        LTtm[j] = psycho_3_add_db(mem, LTtm[j], av_tone + vf);
+                    }
+
+                    /* masking function for lower & upper slopes */
+                    if (noiselabel[k] == NOISE) {
+                        if (dz < -1)
+                            vf = 17 * (dz + 1) - (0.4 * Xnm[k] + 6);
+                        else if (dz < 0)
+                            vf = (0.4 * Xnm[k] + 6) * dz;
+                        else if (dz < 1)
+                            vf = (-17 * dz);
+                        else
+                            vf = -(dz - 1) * (17 - 0.15 * Xnm[k]) - 17;
+                        LTnm[j] = psycho_3_add_db(mem, LTnm[j], av_noise + vf);
+                    }
                 }
             }
         }
