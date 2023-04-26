@@ -32,9 +32,8 @@
 
 
 /*create bit buffer*/
-bit_stream *twolame_buffer_init(unsigned char *buffer, int buffer_size)
-{
-    bit_stream *bs = (bit_stream *) TWOLAME_MALLOC(sizeof(bit_stream));
+void twolame_buffer_init(unsigned char *buffer, int buffer_size, bit_stream *bs)
+{       
 
     if (bs != NULL) {
         bs->buf = buffer;
@@ -46,7 +45,7 @@ bit_stream *twolame_buffer_init(unsigned char *buffer, int buffer_size)
         bs->eobs = FALSE;
     }
 
-    return bs;
+    //return bs;
 }
 
 /* Dellocate bit buffer */
@@ -56,7 +55,7 @@ void twolame_buffer_deinit(bit_stream ** bs)
     if (bs == NULL || *bs == NULL)
         return;
 
-    TWOLAME_FREE(*bs);
+    //TWOLAME_FREE(*bs);
 }
 
 

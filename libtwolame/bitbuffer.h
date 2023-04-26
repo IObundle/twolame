@@ -25,19 +25,7 @@
 
 #include "common.h"
 
-/* bit stream structure */
-typedef struct bit_stream_struc {
-    unsigned char *buf;         /* bit stream buffer */
-    int buf_size;               /* size of buffer (in number of bytes) */
-    long totbit;                /* bit counter of bit stream */
-    int buf_byte_idx;           /* pointer to top byte in buffer */
-    int buf_bit_idx;            /* pointer to top bit of top byte in buffer */
-    int eob;                    /* end of buffer index */
-    int eobs;                   /* end of bit stream flag */
-} bit_stream;
-
-
-bit_stream *twolame_buffer_init(unsigned char *buffer, int buffer_size);
+void twolame_buffer_init(unsigned char *buffer, int buffer_size, bit_stream *bs);
 void twolame_buffer_deinit(bit_stream ** bs);
 
 /*return the current bit stream length (in bits)*/
