@@ -77,6 +77,19 @@ extern "C" {
 #endif
 
 
+
+/* bit stream structure */
+typedef struct bit_stream_struc {
+    unsigned char *buf;         /* bit stream buffer */
+    int buf_size;               /* size of buffer (in number of bytes) */
+    long totbit;                /* bit counter of bit stream */
+    int buf_byte_idx;           /* pointer to top byte in buffer */
+    int buf_bit_idx;            /* pointer to top bit of top byte in buffer */
+    int eob;                    /* end of buffer index */
+    int eobs;                   /* end of bit stream flag */
+} bit_stream;
+
+
 /** MPEG modes */
 typedef enum {
     TWOLAME_AUTO_MODE = -1,
@@ -223,7 +236,7 @@ TL_API int twolame_encode_buffer(twolame_options * glopts,
 TL_API int twolame_encode_buffer_interleaved(twolame_options * glopts,
         const short int pcm[],
         int num_samples,
-        unsigned char *mp2buffer, int mp2buffer_size);
+        unsigned char *mp2buffer, int mp2buffer_size, bit_stream *mybs);
 
 
 /** Encode some 32-bit PCM audio to MP2.
@@ -282,7 +295,7 @@ int twolame_encode_buffer_float32_interleaved(twolame_options * glopts,
  *                         or a negative value on error
  */
 TL_API int twolame_encode_flush(twolame_options * glopts,
-                                    unsigned char *mp2buffer, int mp2buffer_size);
+                                    unsigned char *mp2buffer, int mp2buffer_size, bit_stream *mybs);
 
 
 /** Shut down the twolame encoder.
