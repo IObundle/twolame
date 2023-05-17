@@ -217,7 +217,7 @@ TL_API int twolame_encode_buffer(twolame_options * glopts,
                                      const short int leftpcm[],
                                      const short int rightpcm[],
                                      int num_samples,
-                                     unsigned char *mp2buffer, int mp2buffer_size);
+                                     unsigned char *mp2buffer, int mp2buffer_size, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3);
 
 
 /** Encode some 16-bit PCM audio to MP2.
@@ -236,7 +236,7 @@ TL_API int twolame_encode_buffer(twolame_options * glopts,
 TL_API int twolame_encode_buffer_interleaved(twolame_options * glopts,
         const short int pcm[],
         int num_samples,
-        unsigned char *mp2buffer, int mp2buffer_size, bit_stream *mybs);
+        unsigned char *mp2buffer, int mp2buffer_size, bit_stream *mybs, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3);
 
 
 /** Encode some 32-bit PCM audio to MP2.
@@ -260,7 +260,7 @@ TL_API int twolame_encode_buffer_float32(twolame_options * glopts,
         const float leftpcm[],
         const float rightpcm[],
         int num_samples,
-        unsigned char *mp2buffer, int mp2buffer_size);
+        unsigned char *mp2buffer, int mp2buffer_size, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3);
 
 
 /** Encode some 32-bit PCM audio to MP2.
@@ -279,7 +279,7 @@ TL_API int twolame_encode_buffer_float32(twolame_options * glopts,
 int twolame_encode_buffer_float32_interleaved(twolame_options * glopts,
         const float pcm[],
         int num_samples,
-        unsigned char *mp2buffer, int mp2buffer_size);
+        unsigned char *mp2buffer, int mp2buffer_size, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3);
 
 
 /** Encode any remains buffered PCM audio to MP2.
@@ -295,7 +295,7 @@ int twolame_encode_buffer_float32_interleaved(twolame_options * glopts,
  *                         or a negative value on error
  */
 TL_API int twolame_encode_flush(twolame_options * glopts,
-                                    unsigned char *mp2buffer, int mp2buffer_size, bit_stream *mybs);
+                                    unsigned char *mp2buffer, int mp2buffer_size, bit_stream *mybs, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3);
 
 
 /** Shut down the twolame encoder.
