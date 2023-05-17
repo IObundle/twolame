@@ -54,7 +54,9 @@
 //profiling twolame
 unsigned int start_elapse_time_twolame;
 unsigned int end_elapse_time_twolame;
-unsigned int elapsed_time_twolame[50];
+unsigned int start_elapse_time_encode;
+unsigned int end_elapse_time_encode;
+//unsigned int elapsed_time_twolame[50];
 
 /*
   twolame_init
@@ -493,7 +495,7 @@ static void scale_and_mix_samples(twolame_options * glopts)
     Returns the size of the frame
     or -1 if there is an error
 */
-static int encode_frame(twolame_options * glopts, bit_stream * bs)
+static int encode_frame(twolame_options * glopts, bit_stream * bs, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3)
 {
     int nch = glopts->num_channels_out;
     int sb, ch, adb, i;
@@ -611,7 +613,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
             break;
         case 3:
             // Modified psy model 1
-            twolame_psycho_3(glopts, glopts->buffer, glopts->max_sc, glopts->smr);
+            twolame_psycho_3(glopts, glopts->buffer, glopts->max_sc, glopts->smr, elapsed_time_psycho_3);
             break;
         case 4:
             // Modified psy model 2
@@ -770,7 +772,7 @@ static int encode_frame(twolame_options * glopts, bit_stream * bs)
 int twolame_encode_buffer(twolame_options * glopts,
                           const short int leftpcm[],
                           const short int rightpcm[],
-                          int num_samples, unsigned char *mp2buffer, int mp2buffer_size)
+                          int num_samples, unsigned char *mp2buffer, int mp2buffer_size, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3)
 {
     int mp2_size = 0;
     bit_stream *mybs;
@@ -811,7 +813,7 @@ int twolame_encode_buffer(twolame_options * glopts,
 
             // is there enough to encode a whole frame ?
             if (glopts->samples_in_buffer >= TWOLAME_SAMPLES_PER_FRAME) {
-                int bytes = encode_frame(glopts, mybs);
+                int bytes = encode_frame(glopts, mybs, elapsed_time_twolame, elapsed_time_psycho_3);
                 if (bytes <= 0) {
                     twolame_buffer_deinit(&mybs);
                     return bytes;
@@ -831,7 +833,7 @@ int twolame_encode_buffer(twolame_options * glopts,
 
 int twolame_encode_buffer_interleaved(twolame_options * glopts,
                                       const short int pcm[],
-                                      int num_samples, unsigned char *mp2buffer, int mp2buffer_size, bit_stream *mybs)
+                                      int num_samples, unsigned char *mp2buffer, int mp2buffer_size, bit_stream *mybs, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3)
 {
     int mp2_size = 0;
     int i;
@@ -873,7 +875,10 @@ int twolame_encode_buffer_interleaved(twolame_options * glopts,
 
             // is there enough to encode a whole frame ?
             if (glopts->samples_in_buffer >= TWOLAME_SAMPLES_PER_FRAME) {
-                int bytes = encode_frame(glopts, mybs);
+                start_elapse_time_encode = timer_time_us();
+                int bytes = encode_frame(glopts, mybs, elapsed_time_twolame, elapsed_time_psycho_3);
+                end_elapse_time_encode = timer_time_us();
+                //printf(">>>>> encode_frame() took %d us\n", (unsigned int) (end_elapse_time_encode - start_elapse_time_encode));
                 if (bytes <= 0) {
                     twolame_buffer_deinit(&mybs);
                     return bytes;
@@ -923,7 +928,7 @@ static void float32_to_short(const float in[], short out[], int num_samples, int
 int twolame_encode_buffer_float32(twolame_options * glopts,
                                   const float leftpcm[],
                                   const float rightpcm[],
-                                  int num_samples, unsigned char *mp2buffer, int mp2buffer_size)
+                                  int num_samples, unsigned char *mp2buffer, int mp2buffer_size, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3)
 {
     int mp2_size = 0;
     bit_stream *mybs;
@@ -961,7 +966,7 @@ int twolame_encode_buffer_float32(twolame_options * glopts,
 
             // is there enough to encode a whole frame ?
             if (glopts->samples_in_buffer >= TWOLAME_SAMPLES_PER_FRAME) {
-                int bytes = encode_frame(glopts, mybs);
+                int bytes = encode_frame(glopts, mybs, elapsed_time_twolame, elapsed_time_psycho_3);
                 if (bytes <= 0) {
                     twolame_buffer_deinit(&mybs);
                     return bytes;
@@ -982,7 +987,7 @@ int twolame_encode_buffer_float32(twolame_options * glopts,
 int twolame_encode_buffer_float32_interleaved(twolame_options * glopts,
         const float pcm[],
         int num_samples,
-        unsigned char *mp2buffer, int mp2buffer_size)
+        unsigned char *mp2buffer, int mp2buffer_size, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3)
 {
     int mp2_size = 0;
     bit_stream *mybs;
@@ -1020,7 +1025,7 @@ int twolame_encode_buffer_float32_interleaved(twolame_options * glopts,
 
             // is there enough to encode a whole frame ?
             if (glopts->samples_in_buffer >= TWOLAME_SAMPLES_PER_FRAME) {
-                int bytes = encode_frame(glopts, mybs);
+                int bytes = encode_frame(glopts, mybs, elapsed_time_twolame, elapsed_time_psycho_3);
                 if (bytes <= 0) {
                     twolame_buffer_deinit(&mybs);
                     return bytes;
@@ -1039,7 +1044,7 @@ int twolame_encode_buffer_float32_interleaved(twolame_options * glopts,
 
 
 
-int twolame_encode_flush(twolame_options * glopts, unsigned char *mp2buffer, int mp2buffer_size,  bit_stream *mybs)
+int twolame_encode_flush(twolame_options * glopts, unsigned char *mp2buffer, int mp2buffer_size,  bit_stream *mybs, unsigned int * elapsed_time_twolame, unsigned int * elapsed_time_psycho_3)
 {
     int mp2_size = 0;
     int i;
@@ -1058,7 +1063,7 @@ int twolame_encode_flush(twolame_options * glopts, unsigned char *mp2buffer, int
         }
 
         // Encode the frame
-        mp2_size = encode_frame(glopts, mybs);
+        mp2_size = encode_frame(glopts, mybs, elapsed_time_twolame, elapsed_time_psycho_3);
         glopts->samples_in_buffer = 0;
 
         // free up the bit stream buffer structure
